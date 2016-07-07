@@ -39,11 +39,11 @@ static const char *zz_string_alloc(struct zz_tree *tree, const char *str)
             if (strcmp(chunk->data[i], str) == 0)
                 return chunk->data[i];
         }
-    }
-    for (chunk = tree->strings; chunk; chunk = chunk->next) {
-        for (i = 0; i < ZZ_CHUNK_SIZE; ++i) {
-            if (strcmp(chunk->data[i], str) == 0)
-                return chunk->data[i];
+        for (chunk = tree->strings->next; chunk; chunk = chunk->next) {
+            for (i = 0; i < ZZ_CHUNK_SIZE; ++i) {
+                if (strcmp(chunk->data[i], str) == 0)
+                    return chunk->data[i];
+            }
         }
     }
     if (tree->string_chunk_size == ZZ_CHUNK_SIZE) {
