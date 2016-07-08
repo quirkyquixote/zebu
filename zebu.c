@@ -291,6 +291,12 @@ void zz_insert(struct zz_node *node, struct zz_node *prev,
     node->data.list_val = zz_list_insert(node->data.list_val, prev, child);
 }
 
+void zz_replace(struct zz_node *node, struct zz_node *oldc, struct zz_node *newc)
+{
+    assert(node->tree->token_types[node->token].type == ZZ_INNER);
+    node->data.list_val = zz_list_replace(node->data.list_val, oldc, newc);
+}
+
 void zz_append_list(struct zz_node *node, struct zz_list list)
 {
     assert(node->tree->token_types[node->token].type == ZZ_INNER);
@@ -346,6 +352,25 @@ struct zz_list zz_list_insert(struct zz_list list,
     prev->next = t;
     if (list.last == prev)
         list.last = t;
+    return list;
+}
+
+struct zz_list zz_list_replace(struct zz_list list, struct zz_node *oldc,
+        struct zz_node *newc)
+{
+    if (list.first == oldc) {
+        newc->next = oldc->next;
+        list.first = newc;
+    } else {
+        struct zz_node *prev;
+        for (prev = list.first; prev != NULL; prev = prev->next) {
+            if (prev->next == oldc) {
+                newc->next = oldc->next;
+                prev->next = newc;
+                break;
+            }
+        }
+    }
     return list;
 }
 

@@ -125,6 +125,8 @@ void zz_append(struct zz_node *t, struct zz_node *child);
 void zz_prepend(struct zz_node *t, struct zz_node *child);
 /* Insert child after prev in node */
 void zz_insert(struct zz_node *t, struct zz_node *prev, struct zz_node *child);
+/* Replace oldc by newc */
+void zz_replace(struct zz_node *p, struct zz_node *oldc, struct zz_node *newc);
 /* Append all nodes in list to node */
 void zz_append_list(struct zz_node *t, struct zz_list list);
 /* Prepend all nodes in list to node */
@@ -144,6 +146,10 @@ struct zz_list zz_list_prepend(struct zz_list list, struct zz_node *node);
  * the original list is invalidated */
 struct zz_list zz_list_insert(struct zz_list list, struct zz_node *prev,
         struct zz_node *t);
+/* Return the list that results from replacing oldc by newc in list;
+ * the original list is invalidated */
+struct zz_list zz_list_replace(struct zz_list list, struct zz_node *oldc,
+        struct zz_node *newc);
 /* Return the list that results from concatenating left and right;
  * both left and right are invalidated */
 struct zz_list zz_list_concat(struct zz_list left, struct zz_list right);
