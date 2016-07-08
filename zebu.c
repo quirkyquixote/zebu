@@ -53,7 +53,7 @@ static const char *zz_string_alloc(struct zz_tree *tree, const char *str)
         tree->string_chunk_size = 0;
     }
     len = strlen(str) + 1;
-    buf = malloc(strlen(str));
+    buf = malloc(len);
     memcpy(buf, str, len);
     tree->strings->data[tree->string_chunk_size] = buf;
     ++tree->string_chunk_size;
