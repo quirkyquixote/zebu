@@ -404,13 +404,9 @@ void zz_print_list(struct zz_list list, FILE * f)
 {
     struct zz_node *it;
 
-    if (it = list.first) {
-        for (;;) {
-            fprintf(f, " ");
-            zz_print_node(it, f);
-            if ((it = it->next) == NULL)
-                break;
-        }
+    for (it = list.first; it != NULL; it = zz_next(it)) {
+        fprintf(f, " ");
+        zz_print_node(it, f);
     }
 }
 
