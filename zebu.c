@@ -96,27 +96,28 @@ void zz_tree_deinit(struct zz_tree * tree)
     }
 }
 
-const struct zz_node_type *zz_tree_token_type(struct zz_tree * tree, int tok)
+int zz_tree_token_type(struct zz_tree * tree, int tok)
 {
-    static const struct zz_node_type bad_token_type = { "<bad token>", -1 };
     if ((size_t)tok >= tree->token_types_size)
-        return &bad_token_type;
-    return &tree->token_types[tok];
+        return -1;
+    return tree->token_types[tok].type;
 }
 
-const struct zz_node_type *zz_token_type(struct zz_node *node)
+int zz_token_type(struct zz_node *node)
 {
     return zz_tree_token_type(node->tree, node->token);
 }
 
 const char *zz_tree_token_name(struct zz_tree * tree, int tok)
 {
-    return zz_tree_token_type(tree, tok)->name;
+    if ((size_t)tok >= tree->token_types_size)
+        return "<bad>";
+    return tree->token_types[tok].name;
 }
 
 const char *zz_token_name(struct zz_node * node)
 {
-    return zz_token_type(node)->name;
+    return zz_tree_token_name(node->tree, node->token);
 }
 
 struct zz_node * zz_null(struct zz_tree * tree, int token)
@@ -190,9 +191,7 @@ struct zz_node *zz_inner(struct zz_tree *tree, int token, struct zz_list data)
 
 struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 {
-    const struct zz_node_type *tt = zz_token_type(node);
-
-    switch (tt->type) {
+    switch (zz_token_type(node)) {
     case ZZ_NULL:
         return zz_null(tree, node->token);
     case ZZ_INT:
@@ -442,8 +441,8 @@ int zz_match_at_line(struct zz_node * node, int tok, const char *file, int line)
         return -1;
     } else if (node->token != tok) {
         fprintf(stderr, "%s:%d: expected %s, got %s", file, line,
-                zz_tree_token_type(node->tree, tok)->name,
-                zz_token_type(node)->name);
+                zz_tree_token_name(node->tree, tok),
+                zz_token_name(node));
         return -1;
     }
     return 0;
@@ -453,7 +452,7 @@ int zz_match_end_at_line(struct zz_node * node, const char *file, int line)
 {
     if (node != NULL) {
         fprintf(stderr, "%s:%d: unexpected node: %s",
-                file, line, zz_token_type(node)->name);
+                file, line, zz_token_name(node));
         return -1;
     }
     return 0;

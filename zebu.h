@@ -74,9 +74,9 @@ void zz_tree_init(struct zz_tree *tree, const struct zz_node_type *token_types,
 void zz_tree_deinit(struct zz_tree *tree);
 
 /* Get node type for token in tree, "<bad>" if nonexistant */
-const struct zz_node_type *zz_tree_token_type(struct zz_tree *tree, int tok);
+int zz_tree_token_type(struct zz_tree *tree, int tok);
 /* Get node type for node */
-const struct zz_node_type *zz_token_type(struct zz_node *node);
+int zz_token_type(struct zz_node *node);
 /* Get token name for token, or "<bad>" if unexistant */
 const char *zz_tree_token_name(struct zz_tree *tree, int tok);
 /* Get token name for node */
