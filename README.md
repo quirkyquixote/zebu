@@ -13,18 +13,15 @@ Just ANSI C.
 Installation
 ------------
 
-zebu provices a simple cmake script; to build from scratch:
+zebu provices a simple Makefile; to build from scratch:
 
-    mkdir build
-    cd build
-    cmake ..
-    make
+    make all
     make install
 
 Usage
 -----
 
-The zabu.h file is fully documented, and gives a relatively good idea of the
+The zebu.h file is fully documented, and gives a relatively good idea of the
 API; the bullet points are:
 
 The zz_tree struct manages a full tree, including resource allocation.

@@ -1,0 +1,5 @@
+*.o
+*.so
+tests/print
+tests/tree
+tests/walk

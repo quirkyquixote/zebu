@@ -24,13 +24,13 @@
  * @ingroup Zebu
  */
 enum {
-    ZZ_NULL,                    /**< Node with no information */
-    ZZ_INT,                     /**< Node with an integer */
-    ZZ_UINT,                    /**< Node with an unsigned integer */
-    ZZ_DOUBLE,                  /**< Node with a floating point number */
-    ZZ_STRING,                  /**< Node with a string */
-    ZZ_POINTER,                 /**< Node with user-managed data */
-    ZZ_INNER                    /**< Node with more nodes */
+	ZZ_NULL,                    /**< Node with no information */
+	ZZ_INT,                     /**< Node with an integer */
+	ZZ_UINT,                    /**< Node with an unsigned integer */
+	ZZ_DOUBLE,                  /**< Node with a floating point number */
+	ZZ_STRING,                  /**< Node with a string */
+	ZZ_POINTER,                 /**< Node with user-managed data */
+	ZZ_INNER                    /**< Node with more nodes */
 };
 
 /**
@@ -38,10 +38,10 @@ enum {
  * @ingroup Zebu
  */
 struct zz_node_type {
-    /** Name for logging purposes */
-    const char *name;
-    /** TYpe of data associated with this node type */
-    int type;
+	/** Name for logging purposes */
+	const char *name;
+	/** TYpe of data associated with this node type */
+	int type;
 };
 
 /**
@@ -49,10 +49,10 @@ struct zz_node_type {
  * @ingroup Zebu
  */
 struct zz_list {
-    /** First node in the list */
-    struct zz_node *first;
-    /** Last node in the list */
-    struct zz_node *last;
+	/** First node in the list */
+	struct zz_node *first;
+	/** Last node in the list */
+	struct zz_node *last;
 };
 
 /**
@@ -60,27 +60,27 @@ struct zz_list {
  * @ingroup Zebu
  */
 struct zz_node {
-    /** Tree to which this node belongs */
-    struct zz_tree *tree;
-    /** Token for this node */
-    int token;
-    /** Next sibling */
-    struct zz_node *next;
-    /** Data that depends on the node type */
-    union {
-        /** For ZZ_UINT */
-        unsigned int uint_val;
-        /** For ZZ_INT */
-        int int_val;
-        /** For ZZ_DOUBLE */
-        double double_val;
-        /** For ZZ_STRING */
-        const char *str_val;
-        /** For ZZ_POINTER */
-        void *ptr_val;
-        /** For ZZ_INNER */
-        struct zz_list list_val;
-    } data;
+	/** Tree to which this node belongs */
+	struct zz_tree *tree;
+	/** Token for this node */
+	int token;
+	/** Next sibling */
+	struct zz_node *next;
+	/** Data that depends on the node type */
+	union {
+		/** For ZZ_UINT */
+		unsigned int uint_val;
+		/** For ZZ_INT */
+		int int_val;
+		/** For ZZ_DOUBLE */
+		double double_val;
+		/** For ZZ_STRING */
+		const char *str_val;
+		/** For ZZ_POINTER */
+		void *ptr_val;
+		/** For ZZ_INNER */
+		struct zz_list list_val;
+	} data;
 };
 
 /**
@@ -93,10 +93,10 @@ struct zz_node {
  * @ingroup Zebu
  */
 struct zz_node_chunk {
-    /** Pointer to the next chunk */
-    struct zz_node_chunk *next;
-    /** Some nodes */
-    struct zz_node data[ZZ_CHUNK_SIZE];
+	/** Pointer to the next chunk */
+	struct zz_node_chunk *next;
+	/** Some nodes */
+	struct zz_node data[ZZ_CHUNK_SIZE];
 };
 
 /**
@@ -109,10 +109,10 @@ struct zz_node_chunk {
  * @ingroup Zebu
  */
 struct zz_string_chunk {
-    /** Pointer to the next chunk */
-    struct zz_string_chunk *next;
-    /** Some strings */
-    char *data[ZZ_CHUNK_SIZE];
+	/** Pointer to the next chunk */
+	struct zz_string_chunk *next;
+	/** Some strings */
+	char *data[ZZ_CHUNK_SIZE];
 };
 
 /**
@@ -125,18 +125,18 @@ struct zz_string_chunk {
  * @ingroup Zebu
  */
 struct zz_tree {
-    /** All node types for this tree */
-    const struct zz_node_type *token_types;
-    /** Size of _token_types_ */
-    size_t token_types_size;
-    /** All nodes allocated here */
-    struct zz_node_chunk *nodes;
-    /** Number of nodes allocated in the last chunk (the rest are full) */
-    size_t node_chunk_size;
-    /** All strings allocated here */
-    struct zz_string_chunk *strings;
-    /** Number of strings allocated in the last chunk (the rest are full) */
-    size_t string_chunk_size;
+	/** All node types for this tree */
+	const struct zz_node_type *token_types;
+	/** Size of _token_types_ */
+	size_t token_types_size;
+	/** All nodes allocated here */
+	struct zz_node_chunk *nodes;
+	/** Number of nodes allocated in the last chunk (the rest are full) */
+	size_t node_chunk_size;
+	/** All strings allocated here */
+	struct zz_string_chunk *strings;
+	/** Number of strings allocated in the last chunk (the rest are full) */
+	size_t string_chunk_size;
 };
 
 /**
@@ -148,7 +148,7 @@ struct zz_tree {
  * @param token_types_size number of elements in _token_types_
  */
 void zz_tree_init(struct zz_tree *tree, const struct zz_node_type *token_types,
-        size_t token_types_size);
+		size_t token_types_size);
 /**
  * Destroy tree 
  *
@@ -447,7 +447,7 @@ struct zz_list zz_list_prepend(struct zz_list list, struct zz_node *node);
  * @return a zz_list
  */
 struct zz_list zz_list_insert(struct zz_list list, struct zz_node *prev,
-        struct zz_node *t);
+		struct zz_node *t);
 /**
  * Replace node in list
  *
@@ -461,7 +461,7 @@ struct zz_list zz_list_insert(struct zz_list list, struct zz_node *prev,
  * @return a zz_list
  */
 struct zz_list zz_list_replace(struct zz_list list, struct zz_node *oldc,
-        struct zz_node *newc);
+		struct zz_node *newc);
 /**
  * Concatenate lists
  *
