@@ -7,57 +7,88 @@
 #include <stdarg.h>
 #include <string.h>
 
+/*
+ * A chunk of memory for a tree
+ *
+ * Just a little construct that allows us to allocate memory in chunks and only
+ * deallocate it all at once, when the tree is destroyed.
+ *
+ * This is a header that goes before the actual memory blob, that is at least
+ * ZZ_BLOB_SIZE bytes long.
+ */
+struct zz_blob {
+	/* Next blob in list */
+	struct zz_blob *next;
+	/* Amount of memory used */
+	size_t used;
+};
+
+/*
+ * A list of all strings held by the tree
+ *
+ * This is basically a way to prevent the tree from allocating the same string
+ * twice.
+ *
+ * Again, this is a header that goes before the actual string index, that has
+ * enough bytes to hold alloc strings.
+ */
+struct zz_string_index {
+	/* Allocated memory */
+	size_t alloc;
+	/* Used memory */
+	size_t used;
+};
+
 const struct zz_list zz_list_empty = { NULL, NULL };
 
-static struct zz_node *zz_node_alloc(struct zz_tree *tree)
+static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
 {
-	struct zz_node_chunk *chunk;
-	struct zz_node *node;
+	struct zz_blob *blob;
+	void *ptr;
 
-	if (tree->node_chunk_size == ZZ_CHUNK_SIZE) {
-		chunk = calloc(1, sizeof(*chunk));
-		chunk->next = tree->nodes;
-		tree->nodes = chunk;
-		tree->node_chunk_size = 0;
+	if (nbytes >= ZZ_BLOB_SIZE) {
+		blob = calloc(1, sizeof(*blob) + nbytes);
+		blob->next = tree->blobs;
+		tree->blobs = blob;
+	} else {
+		blob = tree->blobs;
+		while (blob != NULL && ZZ_BLOB_SIZE - blob->used < nbytes)
+			blob = blob->next;
+		if (blob == NULL) {
+			blob = calloc(1, sizeof(*blob) + ZZ_BLOB_SIZE);
+			blob->next = tree->blobs;
+			tree->blobs = blob;
+		}
 	}
-	node = &tree->nodes->data[tree->node_chunk_size];
-	++tree->node_chunk_size;
-	node->tree = tree;
-	return node;
+	ptr = (char *)(blob + 1) + blob->used;
+	blob->used += nbytes;
+	return ptr;
 }
 
-static const char *zz_string_alloc(struct zz_tree *tree, const char *str)
+static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 {
-	struct zz_string_chunk *chunk;
-	int i;
+	struct zz_string_index *index;
+	char **data;
+	size_t i;
 	size_t len;
-	char *buf;
 
-	chunk = tree->strings;
-	if (chunk != NULL) {
-		for (i = 0; i < tree->string_chunk_size; ++i) {
-			if (strcmp(chunk->data[i], str) == 0)
-				return chunk->data[i];
-		}
-		for (chunk = tree->strings->next; chunk; chunk = chunk->next) {
-			for (i = 0; i < ZZ_CHUNK_SIZE; ++i) {
-				if (strcmp(chunk->data[i], str) == 0)
-					return chunk->data[i];
-			}
-		}
+	index = tree->strings;
+	data = (char **)(index + 1);
+	for (i = 0; i < index->used; ++i) {
+		if (strcmp(data[i], str) == 0)
+			return data[i];
 	}
-	if (tree->string_chunk_size == ZZ_CHUNK_SIZE) {
-		chunk = calloc(1, sizeof(*chunk));
-		chunk->next = tree->strings;
-		tree->strings = chunk;
-		tree->string_chunk_size = 0;
+	if (index->used == index->alloc) {
+		index->alloc = index->alloc ? index->alloc * 2 : 2;
+		len = sizeof(*index) + index->alloc * sizeof(char **);
+		index = realloc(index, len);
+		tree->strings = index;
+		data = (char **)(index + 1);
 	}
-	len = strlen(str) + 1;
-	buf = malloc(len);
-	memcpy(buf, str, len);
-	tree->strings->data[tree->string_chunk_size] = buf;
-	++tree->string_chunk_size;
-	return buf;
+	++index->used;
+	data[i] = zz_alloc(tree, strlen(str) + 1);
+	strcpy(data[i], str);
+	return data[i];
 }
 
 void zz_tree_init(struct zz_tree *tree,
@@ -65,35 +96,23 @@ void zz_tree_init(struct zz_tree *tree,
 {
 	tree->token_types = token_types;
 	tree->token_types_size = token_types_size;
-	tree->nodes = NULL;
-	tree->node_chunk_size = ZZ_CHUNK_SIZE;
-	tree->strings = NULL;
-	tree->string_chunk_size = ZZ_CHUNK_SIZE;
+	tree->blobs = NULL;
+	tree->strings = calloc(1, sizeof(struct zz_string_index));
 }
 
 void zz_tree_deinit(struct zz_tree * tree)
 {
-	int i;
+	struct zz_blob *blob;
+	struct zz_blob *next;
 
-	while (tree->nodes) {
-		struct zz_node_chunk *next = tree->nodes->next;
-		free(tree->nodes);
-		tree->nodes = next;
+	blob = tree->blobs;
+	while (blob != NULL) {
+		next = blob->next;
+		free(blob);
+		blob = next;
 	}
-	if (tree->strings) {
-		struct zz_string_chunk *next = tree->strings->next;
-		for (i = 0; i < tree->string_chunk_size; ++i)
-			free(tree->strings->data[i]);
-		free(tree->strings);
-		tree->strings = next;
-	}
-	while (tree->strings) {
-		struct zz_string_chunk *next = tree->strings->next;
-		for (i = 0; i < ZZ_CHUNK_SIZE; ++i)
-			free(tree->strings->data[i]);
-		free(tree->strings);
-		tree->strings = next;
-	}
+
+	free(tree->strings);
 }
 
 int zz_tree_token_type(struct zz_tree * tree, int tok)
@@ -124,7 +143,8 @@ struct zz_node * zz_null(struct zz_tree * tree, int token)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_NULL);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	return node;
 }
@@ -133,7 +153,8 @@ struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_INT);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	node->data.int_val = data;
 	return node;
@@ -143,7 +164,8 @@ struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_UINT);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	node->data.uint_val = data;
 	return node;
@@ -153,7 +175,8 @@ struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_DOUBLE);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	node->data.double_val = data;
 	return node;
@@ -163,9 +186,10 @@ struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_STRING);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
-	node->data.str_val = zz_string_alloc(tree, data);
+	node->data.str_val = zz_alloc_string(tree, data);
 	return node;
 }
 
@@ -173,7 +197,8 @@ struct zz_node *zz_pointer(struct zz_tree *tree, int token, void *data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_POINTER);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	node->data.ptr_val = data;
 	return node;
@@ -183,7 +208,8 @@ struct zz_node *zz_inner(struct zz_tree *tree, int token, struct zz_list data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_INNER);
-	node = zz_node_alloc(tree);
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
 	node->token = token;
 	node->data.list_val = data;
 	return node;

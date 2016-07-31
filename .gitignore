@@ -1,5 +1,7 @@
 *.o
 *.so
+tests/alloc
 tests/print
+tests/string
 tests/tree
 tests/walk

@@ -13,11 +13,11 @@
  * @}
  */
 
-/** 
- * Number of nodes or strings that are allocated at once 
+/**
+ * Minimum amount of memory to allocate at once
  * @ingroup Zebu
  */
-#define ZZ_CHUNK_SIZE 64
+#define ZZ_BLOB_SIZE 1024
 
 /** 
  * Data types that may be held by a zz_node
@@ -84,38 +84,6 @@ struct zz_node {
 };
 
 /**
- * A chunk of nodes
- *
- * Used to allocate nodes in discrete amounts, without invalidating their
- * pointers because of a call to __realloc()__, and allowing zz_tree to delete
- * all them at once with ease. 
- *
- * @ingroup Zebu
- */
-struct zz_node_chunk {
-	/** Pointer to the next chunk */
-	struct zz_node_chunk *next;
-	/** Some nodes */
-	struct zz_node data[ZZ_CHUNK_SIZE];
-};
-
-/**
- * A chunk of strings
- *
- * Used to allocate strings in discrete amounts, without invalidating their
- * pointers because of a call to __realloc()__, and allowing zz_tree to delete
- * all them at once with ease. 
- *
- * @ingroup Zebu
- */
-struct zz_string_chunk {
-	/** Pointer to the next chunk */
-	struct zz_string_chunk *next;
-	/** Some strings */
-	char *data[ZZ_CHUNK_SIZE];
-};
-
-/**
  * Abstract Syntax Tree
  *
  * Includes not only the tree structure--in fact, it doesn't even know which
@@ -129,14 +97,10 @@ struct zz_tree {
 	const struct zz_node_type *token_types;
 	/** Size of _token_types_ */
 	size_t token_types_size;
-	/** All nodes allocated here */
-	struct zz_node_chunk *nodes;
-	/** Number of nodes allocated in the last chunk (the rest are full) */
-	size_t node_chunk_size;
-	/** All strings allocated here */
-	struct zz_string_chunk *strings;
-	/** Number of strings allocated in the last chunk (the rest are full) */
-	size_t string_chunk_size;
+	/** All memory managed by this tree */
+	void *blobs;
+	/** Index of all strings managed by the tree */
+	void *strings;
 };
 
 /**
