@@ -52,7 +52,7 @@ static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
 		tree->blobs = blob;
 	} else {
 		blob = tree->blobs;
-		while (blob != NULL && ZZ_BLOB_SIZE - blob->used < nbytes)
+		while (blob != NULL && blob->used + nbytes > ZZ_BLOB_SIZE)
 			blob = blob->next;
 		if (blob == NULL) {
 			blob = calloc(1, sizeof(*blob) + ZZ_BLOB_SIZE);
