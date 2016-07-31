@@ -56,6 +56,36 @@ struct zz_list {
 };
 
 /**
+ * Data that may be held by a node in the AST
+ * @ingroup Zebu
+ */
+union zz_node_data {
+	/** For ZZ_UINT */
+	unsigned int uint_val;
+	/** For ZZ_INT */
+	int int_val;
+	/** For ZZ_DOUBLE */
+	double double_val;
+	/** For ZZ_STRING */
+	const char *str_val;
+	/** For ZZ_POINTER */
+	void *ptr_val;
+	/** For ZZ_INNER */
+	struct zz_list list_val;
+};
+
+/**
+ * Location in a file from which a node was parsed
+ * @ingroup Zebu
+ */
+struct zz_location {
+	/** Line number from where this node was parsed */
+	size_t line;
+	/** Column number from where this node was parsed */
+	size_t column;
+};
+
+/**
  * Node in an Abstract Syntax Tree 
  * @ingroup Zebu
  */
@@ -67,20 +97,9 @@ struct zz_node {
 	/** Next sibling */
 	struct zz_node *next;
 	/** Data that depends on the node type */
-	union {
-		/** For ZZ_UINT */
-		unsigned int uint_val;
-		/** For ZZ_INT */
-		int int_val;
-		/** For ZZ_DOUBLE */
-		double double_val;
-		/** For ZZ_STRING */
-		const char *str_val;
-		/** For ZZ_POINTER */
-		void *ptr_val;
-		/** For ZZ_INNER */
-		struct zz_list list_val;
-	} data;
+	union zz_node_data data;
+	/** Location from which this node was parsed */
+	struct zz_location loc;
 };
 
 /**
@@ -101,6 +120,10 @@ struct zz_tree {
 	void *blobs;
 	/** Index of all strings managed by the tree */
 	void *strings;
+	/** Function to generate the location of a node */
+	void (* gen_loc)(struct zz_location *, void *);
+	/** Data for the gen_loc function */
+	void *gen_loc_data;
 };
 
 /**

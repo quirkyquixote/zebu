@@ -65,6 +65,17 @@ static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
 	return ptr;
 }
 
+static struct zz_node *zz_alloc_node(struct zz_tree *tree)
+{
+	struct zz_node *node;
+
+	node = zz_alloc(tree, sizeof(*node));
+	node->tree = tree;
+	if (tree->gen_loc != NULL)
+		tree->gen_loc(&node->loc, tree->gen_loc_data);
+	return node;
+}
+
 static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 {
 	struct zz_string_index *index;
@@ -98,6 +109,8 @@ void zz_tree_init(struct zz_tree *tree,
 	tree->token_types_size = token_types_size;
 	tree->blobs = NULL;
 	tree->strings = calloc(1, sizeof(struct zz_string_index));
+	tree->gen_loc = NULL;
+	tree->gen_loc_data = NULL;
 }
 
 void zz_tree_deinit(struct zz_tree * tree)
@@ -143,8 +156,7 @@ struct zz_node * zz_null(struct zz_tree * tree, int token)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_NULL);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	return node;
 }
@@ -153,8 +165,7 @@ struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_INT);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.int_val = data;
 	return node;
@@ -164,8 +175,7 @@ struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_UINT);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.uint_val = data;
 	return node;
@@ -175,8 +185,7 @@ struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_DOUBLE);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.double_val = data;
 	return node;
@@ -186,8 +195,7 @@ struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_STRING);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.str_val = zz_alloc_string(tree, data);
 	return node;
@@ -197,8 +205,7 @@ struct zz_node *zz_pointer(struct zz_tree *tree, int token, void *data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_POINTER);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.ptr_val = data;
 	return node;
@@ -208,8 +215,7 @@ struct zz_node *zz_inner(struct zz_tree *tree, int token, struct zz_list data)
 {
 	struct zz_node *node;
 	assert(tree->token_types[token].type == ZZ_INNER);
-	node = zz_alloc(tree, sizeof(*node));
-	node->tree = tree;
+	node = zz_alloc_node(tree);
 	node->token = token;
 	node->data.list_val = data;
 	return node;

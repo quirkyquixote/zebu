@@ -63,48 +63,50 @@ static const struct zz_node_type node_types[] = {
 };
 
 /* Try allocating until surpassing the size of a blob */
-int allocate_beyond_blob(struct zz_tree *tree)
+int allocate_beyond_blob(void)
 {
+	struct zz_tree tree;
 	size_t len;
 	struct zz_node **nodes;
 	size_t i;
 
+	zz_tree_init(&tree, node_types, sizeof(node_types) / sizeof(*node_types));
 	len = ZZ_BLOB_SIZE / sizeof(*nodes) + 10;
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i)
-		nodes[i] = zz_uint(tree, 2, i);
+		nodes[i] = zz_uint(&tree, 2, i);
 	for (i = 0; i < len; ++i)
 		assert(zz_to_uint(nodes[i]) == i);
+	zz_tree_deinit(&tree);
 	return 0;
 }
 
 /* Try allocating a string bigger than the size of a blob */
-int allocate_huge_string(struct zz_tree *tree)
+int allocate_huge_string(void)
 {
+	struct zz_tree tree;
 	const char *str;
 	size_t len;
 	struct zz_node *n1, *n2;
 
+	zz_tree_init(&tree, node_types, sizeof(node_types) / sizeof(*node_types));
 	str = REALLY_LONG_STRING;
 	len = strlen(REALLY_LONG_STRING);
-	n1 = zz_string(tree, 4, str);
-	n2 = zz_string(tree, 4, str);
+	n1 = zz_string(&tree, 4, str);
+	n2 = zz_string(&tree, 4, str);
 	assert(n1 != n2);
 	assert(zz_to_string(n1) != str);
 	assert(zz_to_string(n2) != str);
 	assert(strcmp(zz_to_string(n1), str) == 0);
 	assert(strcmp(zz_to_string(n2), str) == 0);
 	assert(zz_to_string(n1) == zz_to_string(n2));
+	zz_tree_deinit(&tree);
 	return 0;
 }
 
 int main(int argc, char *argv[])
 {
-	struct zz_tree tree;
-	zz_tree_init(&tree, node_types, sizeof(node_types) / sizeof(*node_types));
-	allocate_beyond_blob(&tree);
-	allocate_huge_string(&tree);
-	zz_tree_deinit(&tree);
-	exit(EXIT_SUCCESS);
+	allocate_beyond_blob();
+	allocate_huge_string();
 }
 
