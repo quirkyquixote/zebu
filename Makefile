@@ -1,22 +1,20 @@
 
 include config.mk
 
-ZEBU_OBJECTS += zebu.o
+OBJECTS = zebu.o
+LIBS = libzebu.so
+INSTALL_LIBS = $(addprefix $(libdir)/,$(LIBS))
 
 .PHONY: all
-all: libzebu.so
+all: $(LIBS)
 
 .PHONY: clean
 clean:
-	@$(RM) *.o
-	@$(RM) libzebu.so
+	@$(RM) $(OBJECTS)
+	@$(RM) $(LIBS)
 
 .PHONY: install
-install: all
-	$(call colorecho,Installing $(LIBDIR)/libzebu.so.$(VERSION))
-	@$(INSTALL) libzebu.so $(LIBDIR)/libzebu.so.$(VERSION)
-	$(call colorecho,Installing $(LIBDIR)/libzebu.so)
-	@cd $(LIBDIR) && ln -s -f libzebu.so.$(VERSION) libzebu.so
+install: all $(INSTALL_LIBS)
 
 .PHONY: build-test
 build-test: all
@@ -33,7 +31,5 @@ clean-test:
 .PHONY: realclean
 realclean: clean clean-test
 
-libzebu.so: $(ZEBU_OBJECTS)
-	$(call colorecho,Linking C shared library $@)
-	@$(CC) -shared -Wl,-soname,libzebu.so.$(VERSION) -o libzebu.so $^
+libzebu.so: $(OBJECTS)
 

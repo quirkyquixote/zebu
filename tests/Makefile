@@ -1,6 +1,10 @@
 
 include ../config.mk
 
+OBJECTS += print.o
+OBJECTS += tree.o
+OBJECTS += walk.o
+
 PROGRAMS += print
 PROGRAMS += tree
 PROGRAMS += walk
@@ -17,22 +21,13 @@ test: $(TESTS)
 
 .PHONY: clean-test
 clean-test:
-	@$(RM) *.o
+	@$(RM) $(OBJECTS)
 	@$(RM) $(PROGRAMS)
 
 print: print.o ../zebu.o
-	$(call colorecho,Linking C executable $@)
-	@$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^
-
 tree: tree.o ../zebu.o
-	$(call colorecho,Linking C executable $@)
-	@$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^
-
 walk: walk.o ../zebu.o
-	$(call colorecho,Linking C executable $@)
-	@$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^
 
 test_%: %
-	$(call colorecho,Test $<)
-	@./$<
+	@$(call colorecho,TEST $<); ./$<
 

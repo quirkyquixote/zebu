@@ -3,9 +3,9 @@ CC = cc
 INSTALL = install
 RM = rm -f
 
-VERSION = 1.0
-PREFIX = $(HOME)
-LIBDIR = $(PREFIX)/lib
+version = 1.0
+prefix = $(HOME)
+libdir = $(prefix)/lib
 
 CPPFLAGS =
 
@@ -27,6 +27,23 @@ define colorecho
       @tput sgr0
 endef
 
+QUIET_CC = @$(call colorecho, CC $@);
+QUIET_LINK = @$(call colorecho, LINK $@);
+QUIET_INSTALL = @$(call colorecho, INSTALL $@);
+
+%: %.c 
+
+%: %.o
+	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^
+
 %.o: %.c
-	$(call colorecho,Building C object $@)
-	@$(CC) $(ALL_CFLAGS) -c $<
+	$(QUIET_CC)$(CC) $(ALL_CFLAGS) -c $<
+
+lib%.so: %.o
+	$(QUIET_LINK)$(CC) -shared -Wl,-soname,$@.$(VERSION) -o $@ $^
+
+$(libdir)/%.so: %.so
+	@$(INSTALL) -d $(@D)
+	$(QUIET_INSTALL)$(INSTALL) $< $@.$(version)
+	@cd $(libdir) && ln -s -f $<.$(version) $<
+
