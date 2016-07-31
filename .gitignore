@@ -1,6 +1,7 @@
 *.o
 *.so
 tests/alloc
+tests/error
 tests/location
 tests/print
 tests/string

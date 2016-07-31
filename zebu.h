@@ -79,6 +79,8 @@ union zz_node_data {
  * @ingroup Zebu
  */
 struct zz_location {
+	/** Name of the file */
+	const char *file;
 	/** Line number from where this node was parsed */
 	size_t line;
 	/** Column number from where this node was parsed */
@@ -491,45 +493,46 @@ void zz_print_list(struct zz_list list, FILE * f);
 /**
  * Match node
  *
- * If the token for _node_ is not _tok_, raise an error whose message begins
- * with _file_:_line_: 
+ * If the token for _node_ is not _tok_, call zz_node_error() and return -1.
  *
  * @memberof zz_node
  * @param node a zz_node
  * @param tok a token
- * @param file a file name
- * @param line a file line
  * @return 0 on success, -1 on failure
  */
-int zz_match_at_line(struct zz_node * node, int tok, const char * file, int line);
+int zz_match(struct zz_node * node, int tok);
 /**
  * Match end of list
  *
- * If _node_ is not __NULL__, raise an error whose message begins with _file_:_line_: 
+ * If _node->next_ is not __NULL__, call zz_node_error() and return -1.
  *
  * @memberof zz_node
  * @param node a zz_node
- * @param file a file name
- * @param line a file line
  * @return 0 on success, -1 on failure
  */
-int zz_match_end_at_line(struct zz_node * node, const char *file, int line);
+int zz_match_end(struct zz_node * node);
 /**
- * A macro that calls zz_match_at_line with ___FILE___ and ___LINE___ as arguments 
+ * Print error from node
+ *
+ * Call zz_error() with the _file_, _line_, and _column_ from _node_'s loc.
  *
  * @memberof zz_node
  * @param node a zz_node
- * @param tok a token
- * @return 0 on success, -1 on failure
+ * @param msg error messabe to be printed
  */
-#define zz_match(node,tok) zz_match_at_line(node,tok,__FILE__,__LINE__)
+void zz_node_error(struct zz_node *node, const char *msg);
 /**
- * A macro that calls zz_match_end_at_line with ___FILE___ and ___LINE___ as arguments 
+ * Print error message
  *
- * @memberof zz_node
- * @param node a zz_node
- * @return 0 on success, -1 on failure
+ * Prints an error message including the file name _file_ and line _line_, then
+ * prints the offending line and a caret pointing at the offending column.
+ *
+ * @ingroup Zebu
+ * @param msg error messabe to be printed
+ * @param file path to the file with the error
+ * @param line offending line
+ * @param column offending column
  */
-#define zz_match_end(node) zz_match_end_at_line(node,__FILE__,__LINE__)
+void zz_error(const char *msg, const char *file, size_t line, size_t column);
 
 #endif

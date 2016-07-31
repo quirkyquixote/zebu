@@ -466,27 +466,65 @@ void zz_print_list(struct zz_list list, FILE * f)
 	}
 }
 
-int zz_match_at_line(struct zz_node * node, int tok, const char *file, int line)
+int zz_match(struct zz_node *node, int tok)
 {
+	char buf[1024];
+
 	if (node == NULL) {
-		fprintf(stderr, "%s:%d: unexpected end of node list", file, line);
+		zz_node_error(node, "unexpected end of node list");
 		return -1;
 	} else if (node->token != tok) {
-		fprintf(stderr, "%s:%d: expected %s, got %s", file, line,
-				zz_tree_token_name(node->tree, tok),
-				zz_token_name(node));
+		snprintf(buf, sizeof(buf), "expected %s, got %s",
+			zz_tree_token_name(node->tree, tok),
+			zz_token_name(node));
+		zz_node_error(node, buf);
 		return -1;
 	}
 	return 0;
 }
 
-int zz_match_end_at_line(struct zz_node * node, const char *file, int line)
+int zz_match_end(struct zz_node *node)
 {
 	if (node != NULL) {
-		fprintf(stderr, "%s:%d: unexpected node: %s",
-				file, line, zz_token_name(node));
+		zz_node_error(node, "unexpected node");
 		return -1;
 	}
 	return 0;
 }
 
+void zz_node_error(struct zz_node *node, const char *msg)
+{
+	zz_error(msg, node->loc.file, node->loc.line, node->loc.column);
+}
+
+void zz_error(const char *msg, const char *file, size_t line, size_t column)
+{
+	FILE *f;
+	int i;
+	int c;
+	int r;
+
+	if (file == NULL) {
+		fprintf(stderr, "<file>:%d: %s\n", line, msg);
+		return;
+	}
+	fprintf(stderr, "%s:%d: %s", file, line, msg);
+	f = fopen(file, "r");
+	if (f == NULL)
+		return;
+	fseek(f, 0, SEEK_SET);
+	for (i = 1; i < line; ++i) {
+		while (fgetc(f) != '\n')
+			continue;
+	}
+	fprintf(stderr, "\n");
+	r = ftell(f);
+	for (i = 0; (c = fgetc(f)) != '\n'; ++i)
+		fputc(c, stderr);
+	fprintf(stderr, "\n");
+	fseek(f, r, SEEK_SET);
+	for (i = 1; i < column; ++i)
+		fputc(fgetc(f) == '\t' ? '\t' : ' ', stderr);
+	fprintf(stderr, "^\n");
+	fclose(f);
+}
