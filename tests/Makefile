@@ -25,6 +25,9 @@ TESTS += test_string
 TESTS += test_tree
 TESTS += test_walk
 
+# Required for the allocation test to compile
+ALL_CFLAGS += -Wno-overlength-strings
+
 .PHONY: build-test
 build-test: $(PROGRAMS)
 
