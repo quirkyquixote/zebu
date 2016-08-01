@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	struct zz_node *root;
 	struct zz_node *node;
 
-	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
+	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
 
 	root = zz_null(&tree, 0);
 	assert(root != NULL);

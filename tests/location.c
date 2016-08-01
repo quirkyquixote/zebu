@@ -3,40 +3,51 @@
 
 #include "../zebu.h"
 
-static const char *names[] = { "foo", "bar", "baz" };
+struct node_with_location {
+	struct zz_node node;
+	int location;
+};
 
-void gen_loc(struct zz_location *loc, void *user)
+static void set_location(void *ptr, int location)
 {
-	int *counter = user;
-	loc->line = *counter;
-	loc->column = *counter;
-	++*counter;
+	struct node_with_location *node = ptr;
+	node->location = location;
 }
+
+static int get_location(void *ptr)
+{
+	struct node_with_location *node = ptr;
+	return node->location;
+}
+
+static const char *names[] = { "foo", "bar", "baz" };
 
 int main(int argc, char *argv[])
 {
 	struct zz_tree tree;
-	int counter;
 	struct zz_node *n1, *n2, *n3, *n4, *n5, *n6;
 
-	counter = 0;
-	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
-	tree.gen_loc = gen_loc;
-	tree.gen_loc_data = &counter;
+	zz_tree_init(&tree, sizeof(struct node_with_location), names, 3);
 
 	n1 = zz_null(&tree, 0);
+	set_location(n1, 1);
 	n2 = zz_int(&tree, 1, -314);
+	set_location(n2, 2);
 	n3 = zz_uint(&tree, 2, 314);
+	set_location(n3, 3);
 	n4 = zz_double(&tree, 0, 3.14);
+	set_location(n4, 5);
 	n5 = zz_string(&tree, 1, "314");
+	set_location(n5, 8);
 	n6 = zz_pointer(&tree, 2, &tree);
+	set_location(n6, 13);
 
-	assert(n1->loc.line == 0 && n1->loc.column == 0);
-	assert(n2->loc.line == 1 && n2->loc.column == 1);
-	assert(n3->loc.line == 2 && n3->loc.column == 2);
-	assert(n4->loc.line == 3 && n4->loc.column == 3);
-	assert(n5->loc.line == 4 && n5->loc.column == 4);
-	assert(n6->loc.line == 5 && n6->loc.column == 5);
+	assert(get_location(n1) == 1);
+	assert(get_location(n2) == 2);
+	assert(get_location(n3) == 3);
+	assert(get_location(n4) == 5);
+	assert(get_location(n5) == 8);
+	assert(get_location(n6) == 13);
 
 	exit(EXIT_SUCCESS);
 }

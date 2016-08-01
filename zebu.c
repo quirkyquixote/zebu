@@ -69,10 +69,8 @@ static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 {
 	struct zz_node *node;
 
-	node = zz_alloc(tree, sizeof(*node));
+	node = zz_alloc(tree, tree->node_size);
 	node->tree = tree;
-	if (tree->gen_loc != NULL)
-		tree->gen_loc(&node->loc, tree->gen_loc_data);
 	return node;
 }
 
@@ -102,15 +100,15 @@ static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 	return data[i];
 }
 
-void zz_tree_init(struct zz_tree *tree, const char *const *token_names,
-		size_t token_names_size)
+void zz_tree_init(struct zz_tree *tree, size_t node_size,
+		const char *const *token_names, size_t num_tokens)
 {
+	assert(node_size >= sizeof(struct zz_node));
 	tree->token_names = token_names;
-	tree->token_names_size = token_names_size;
+	tree->num_tokens = num_tokens;
+	tree->node_size = node_size;
 	tree->blobs = NULL;
 	tree->strings = calloc(1, sizeof(struct zz_string_index));
-	tree->gen_loc = NULL;
-	tree->gen_loc_data = NULL;
 }
 
 void zz_tree_deinit(struct zz_tree * tree)
@@ -130,7 +128,7 @@ void zz_tree_deinit(struct zz_tree * tree)
 
 const char *zz_tree_token_name(struct zz_tree * tree, int tok)
 {
-	if ((size_t)tok >= tree->token_names_size)
+	if ((size_t)tok >= tree->num_tokens)
 		return NULL;
 	return tree->token_names[tok];
 }
@@ -450,7 +448,7 @@ int zz_match(struct zz_node *node, int tok)
 int zz_match_end(struct zz_node *node)
 {
 	if (node != NULL) {
-		zz_node_error(node, "unexpected node");
+		node->tree->error(node, "unexpected node");
 		return -1;
 	}
 	return 0;
@@ -458,7 +456,7 @@ int zz_match_end(struct zz_node *node)
 
 void zz_node_error(struct zz_node *node, const char *msg)
 {
-	zz_error(msg, node->loc.file, node->loc.line, node->loc.column);
+	node->tree->error(node, msg);
 }
 
 void zz_error(const char *msg, const char *file, size_t line, size_t column)

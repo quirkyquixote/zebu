@@ -90,8 +90,6 @@ struct zz_node {
 	int type;
 	/** Data that depends on the node type */
 	union zz_node_data data;
-	/** Location from which this node was parsed */
-	struct zz_location loc;
 };
 
 /**
@@ -106,12 +104,16 @@ struct zz_node {
 struct zz_tree {
 	/** All node names for this tree */
 	const char *const *token_names;
-	/** Size of _token_names_ */
-	size_t token_names_size;
+	/** Size of _token_names */
+	size_t num_tokens;
+	/** Size of each node */
+	size_t node_size;
 	/** All memory managed by this tree */
 	void *blobs;
 	/** Index of all strings managed by the tree */
 	void *strings;
+	/** Function to report an error */
+	void (* error)(void *, const char *);
 };
 
 /**
@@ -119,11 +121,12 @@ struct zz_tree {
  *
  * @memberof zz_tree
  * @param tree a zz_tree
+ * @param node_size size of node; it must be at least sizeof(struct zz_node)
  * @param token_names all node names
- * @param token_names_size number of elements in _token_names_
+ * @param num_tokens number of elements in _token_names_
  */
-void zz_tree_init(struct zz_tree *tree,
-		const char *const *token_names, size_t token_names_size);
+void zz_tree_init(struct zz_tree *tree, size_t node_size,
+		const char *const *token_names, size_t num_tokens);
 /**
  * Destroy tree 
  *
@@ -490,7 +493,7 @@ int zz_match_end(struct zz_node * node);
 /**
  * Print error from node
  *
- * Call zz_error() with the _file_, _line_, and _column_ from _node_'s loc.
+ * Shorthand for node->tree->error(node, msg)
  *
  * @memberof zz_node
  * @param node a zz_node

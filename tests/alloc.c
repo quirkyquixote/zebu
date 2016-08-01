@@ -62,7 +62,7 @@ int allocate_beyond_blob(void)
 	struct zz_node **nodes;
 	size_t i;
 
-	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
+	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
 	len = ZZ_BLOB_SIZE / sizeof(*nodes) + 10;
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i)
@@ -81,7 +81,7 @@ int allocate_huge_string(void)
 	size_t len;
 	struct zz_node *n1, *n2;
 
-	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
+	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
 	str = REALLY_LONG_STRING;
 	len = strlen(REALLY_LONG_STRING);
 	n1 = zz_string(&tree, 4, str);

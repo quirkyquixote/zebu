@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 	struct zz_tree tree;
 	struct zz_node *n1, *n2, *n3, *n4;
 
-	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
+	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
 
 	n1 = zz_string(&tree, 0, "foo");
 	n2 = zz_string(&tree, 0, "bar");
