@@ -133,7 +133,7 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size,
  * @memberof zz_tree
  * @param tree a zz_tree
  */
-void zz_tree_deinit(struct zz_tree *tree);
+void zz_tree_destroy(struct zz_tree *tree);
 
 /**
  * Get node type for token in tree, "<bad>" if nonexistant 

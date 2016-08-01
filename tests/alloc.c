@@ -69,7 +69,7 @@ int allocate_beyond_blob(void)
 		nodes[i] = zz_uint(&tree, 2, i);
 	for (i = 0; i < len; ++i)
 		assert(zz_to_uint(nodes[i]) == i);
-	zz_tree_deinit(&tree);
+	zz_tree_destroy(&tree);
 	return 0;
 }
 
@@ -92,7 +92,7 @@ int allocate_huge_string(void)
 	assert(strcmp(zz_to_string(n1), str) == 0);
 	assert(strcmp(zz_to_string(n2), str) == 0);
 	assert(zz_to_string(n1) == zz_to_string(n2));
-	zz_tree_deinit(&tree);
+	zz_tree_destroy(&tree);
 	return 0;
 }
 

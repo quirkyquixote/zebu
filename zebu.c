@@ -111,7 +111,7 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size,
 	tree->strings = calloc(1, sizeof(struct zz_string_index));
 }
 
-void zz_tree_deinit(struct zz_tree * tree)
+void zz_tree_destroy(struct zz_tree * tree)
 {
 	struct zz_blob *blob;
 	struct zz_blob *next;
