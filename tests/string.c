@@ -4,27 +4,19 @@
 
 #include "../zebu.h"
 
-static const struct zz_node_type node_types[] = {
-	{ "null", ZZ_NULL },
-	{ "int", ZZ_INT },
-	{ "uint", ZZ_UINT },
-	{ "double", ZZ_DOUBLE },
-	{ "string", ZZ_STRING },
-	{ "pointer", ZZ_POINTER },
-	{ "inner", ZZ_INNER },
-};
+static const char *names[] = { "foo", "bar", "baz" };
 
 int main(int argc, char *argv[])
 {
 	struct zz_tree tree;
 	struct zz_node *n1, *n2, *n3, *n4;
 
-	zz_tree_init(&tree, node_types, sizeof(node_types) / sizeof(*node_types));
+	zz_tree_init(&tree, names, sizeof(names) / sizeof(*names));
 
-	n1 = zz_string(&tree, 4, "foo");
-	n2 = zz_string(&tree, 4, "bar");
-	n3 = zz_string(&tree, 4, "foobar");
-	n4 = zz_string(&tree, 4, "foo");
+	n1 = zz_string(&tree, 0, "foo");
+	n2 = zz_string(&tree, 0, "bar");
+	n3 = zz_string(&tree, 0, "foobar");
+	n4 = zz_string(&tree, 0, "foo");
 
 	assert(strcmp(zz_to_string(n1), "foo") == 0);
 	assert(strcmp(zz_to_string(n2), "bar") == 0);

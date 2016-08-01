@@ -102,11 +102,11 @@ static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 	return data[i];
 }
 
-void zz_tree_init(struct zz_tree *tree,
-		const struct zz_node_type * token_types, size_t token_types_size)
+void zz_tree_init(struct zz_tree *tree, const char *const *token_names,
+		size_t token_names_size)
 {
-	tree->token_types = token_types;
-	tree->token_types_size = token_types_size;
+	tree->token_names = token_names;
+	tree->token_names_size = token_names_size;
 	tree->blobs = NULL;
 	tree->strings = calloc(1, sizeof(struct zz_string_index));
 	tree->gen_loc = NULL;
@@ -128,23 +128,11 @@ void zz_tree_deinit(struct zz_tree * tree)
 	free(tree->strings);
 }
 
-int zz_tree_token_type(struct zz_tree * tree, int tok)
-{
-	if ((size_t)tok >= tree->token_types_size)
-		return -1;
-	return tree->token_types[tok].type;
-}
-
-int zz_token_type(struct zz_node *node)
-{
-	return zz_tree_token_type(node->tree, node->token);
-}
-
 const char *zz_tree_token_name(struct zz_tree * tree, int tok)
 {
-	if ((size_t)tok >= tree->token_types_size)
-		return "<bad>";
-	return tree->token_types[tok].name;
+	if ((size_t)tok >= tree->token_names_size)
+		return NULL;
+	return tree->token_names[tok];
 }
 
 const char *zz_token_name(struct zz_node * node)
@@ -155,18 +143,18 @@ const char *zz_token_name(struct zz_node * node)
 struct zz_node * zz_null(struct zz_tree * tree, int token)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_NULL);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_NULL;
 	return node;
 }
 
 struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_INT);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_INT;
 	node->data.int_val = data;
 	return node;
 }
@@ -174,9 +162,9 @@ struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
 struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_UINT);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_UINT;
 	node->data.uint_val = data;
 	return node;
 }
@@ -184,9 +172,9 @@ struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
 struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_DOUBLE);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_DOUBLE;
 	node->data.double_val = data;
 	return node;
 }
@@ -194,9 +182,9 @@ struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
 struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_STRING);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_STRING;
 	node->data.str_val = zz_alloc_string(tree, data);
 	return node;
 }
@@ -204,26 +192,16 @@ struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
 struct zz_node *zz_pointer(struct zz_tree *tree, int token, void *data)
 {
 	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_POINTER);
 	node = zz_alloc_node(tree);
 	node->token = token;
+	node->type = ZZ_POINTER;
 	node->data.ptr_val = data;
-	return node;
-}
-
-struct zz_node *zz_inner(struct zz_tree *tree, int token, struct zz_list data)
-{
-	struct zz_node *node;
-	assert(tree->token_types[token].type == ZZ_INNER);
-	node = zz_alloc_node(tree);
-	node->token = token;
-	node->data.list_val = data;
 	return node;
 }
 
 struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 {
-	switch (zz_token_type(node)) {
+	switch (node->type) {
 	case ZZ_NULL:
 		return zz_null(tree, node->token);
 	case ZZ_INT:
@@ -236,9 +214,8 @@ struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 		return zz_string(tree, node->token, node->data.str_val);
 	case ZZ_POINTER:
 		return zz_string(tree, node->token, node->data.ptr_val);
-	case ZZ_INNER:
-		return zz_inner(tree, node->token, zz_list_empty);
 	}
+	return NULL;
 }
 
 struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)
@@ -247,42 +224,40 @@ struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)
 	struct zz_node *it;
 
 	ret = zz_copy(tree, node);
-
-	if (tree->token_types[node->token].type == ZZ_INNER) {
-		for (it = node->data.list_val.first; it; it = it->next)
+	if (ret != NULL) {
+		for (it = node->children.first; it; it = it->next)
 			zz_append(ret, zz_copy_recursive(tree, it));
 	}
-
 	return ret;
 }
 
 int zz_to_int(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INT);
+	assert(node->type == ZZ_INT);
 	return node->data.int_val;
 }
 
 unsigned int zz_to_uint(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_UINT);
+	assert(node->type == ZZ_UINT);
 	return node->data.uint_val;
 }
 
 double zz_to_double(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_DOUBLE);
+	assert(node->type == ZZ_DOUBLE);
 	return node->data.double_val;
 }
 
 const char *zz_to_string(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_STRING);
+	assert(node->type == ZZ_STRING);
 	return node->data.str_val;
 }
 
 void *zz_to_pointer(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_POINTER);
+	assert(node->type == ZZ_POINTER);
 	return node->data.ptr_val;
 }
 
@@ -293,51 +268,43 @@ struct zz_node *zz_next(const struct zz_node *node)
 
 struct zz_node *zz_children(const struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	return node->data.list_val.first;
+	return node->children.first;
 }
 
 void zz_clear(struct zz_node *node)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_empty;
+	node->children = zz_list_empty;
 }
 
 void zz_append(struct zz_node *node, struct zz_node *child)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_append(node->data.list_val, child);
+	node->children = zz_list_append(node->children, child);
 }
 
 void zz_prepend(struct zz_node *node, struct zz_node *child)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_prepend(node->data.list_val, child);
+	node->children = zz_list_prepend(node->children, child);
 }
 
 void zz_insert(struct zz_node *node, struct zz_node *prev,
 		struct zz_node *child)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_insert(node->data.list_val, prev, child);
+	node->children = zz_list_insert(node->children, prev, child);
 }
 
 void zz_replace(struct zz_node *node, struct zz_node *oldc, struct zz_node *newc)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_replace(node->data.list_val, oldc, newc);
+	node->children = zz_list_replace(node->children, oldc, newc);
 }
 
 void zz_append_list(struct zz_node *node, struct zz_list list)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_concat(node->data.list_val, list);
+	node->children = zz_list_concat(node->children, list);
 }
 
 void zz_prepend_list(struct zz_node *node, struct zz_list list)
 {
-	assert(node->tree->token_types[node->token].type == ZZ_INNER);
-	node->data.list_val = zz_list_concat(list, node->data.list_val);
+	node->children = zz_list_concat(list, node->children);
 }
 
 struct zz_list zz_list(struct zz_node * t, ...)
@@ -427,10 +394,9 @@ struct zz_node * zz_list_index(struct zz_list list, int i)
 
 void zz_print_node(struct zz_node * node, FILE * f)
 {
-	const struct zz_node_type *tt = &node->tree->token_types[node->token];
-	fprintf(f, "[%s", tt->name);
+	fprintf(f, "[%s", zz_token_name(node));
 
-	switch (tt->type) {
+	switch (node->type) {
 	case ZZ_NULL:
 		break;
 	case ZZ_INT:
@@ -448,11 +414,9 @@ void zz_print_node(struct zz_node * node, FILE * f)
 	case ZZ_POINTER:
 		fprintf(f, " %p", node->data.ptr_val);
 		break;
-	case ZZ_INNER:
-		zz_print_list(node->data.list_val, f);
-		break;
 	}
 
+	zz_print_list(node->children, f);
 	fprintf(f, "]");
 }
 

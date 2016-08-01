@@ -29,19 +29,7 @@ enum {
 	ZZ_UINT,                    /**< Node with an unsigned integer */
 	ZZ_DOUBLE,                  /**< Node with a floating point number */
 	ZZ_STRING,                  /**< Node with a string */
-	ZZ_POINTER,                 /**< Node with user-managed data */
-	ZZ_INNER                    /**< Node with more nodes */
-};
-
-/**
- * Properties of an AST node type
- * @ingroup Zebu
- */
-struct zz_node_type {
-	/** Name for logging purposes */
-	const char *name;
-	/** TYpe of data associated with this node type */
-	int type;
+	ZZ_POINTER                  /**< Node with user-managed data */
 };
 
 /**
@@ -70,8 +58,6 @@ union zz_node_data {
 	const char *str_val;
 	/** For ZZ_POINTER */
 	void *ptr_val;
-	/** For ZZ_INNER */
-	struct zz_list list_val;
 };
 
 /**
@@ -94,10 +80,14 @@ struct zz_location {
 struct zz_node {
 	/** Tree to which this node belongs */
 	struct zz_tree *tree;
-	/** Token for this node */
-	int token;
 	/** Next sibling */
 	struct zz_node *next;
+	/** Children */
+	struct zz_list children;
+	/** Token for this node */
+	int token;
+	/** Type of data held by the node */
+	int type;
 	/** Data that depends on the node type */
 	union zz_node_data data;
 	/** Location from which this node was parsed */
@@ -114,18 +104,14 @@ struct zz_node {
  * @ingroup Zebu
  */
 struct zz_tree {
-	/** All node types for this tree */
-	const struct zz_node_type *token_types;
-	/** Size of _token_types_ */
-	size_t token_types_size;
+	/** All node names for this tree */
+	const char *const *token_names;
+	/** Size of _token_names_ */
+	size_t token_names_size;
 	/** All memory managed by this tree */
 	void *blobs;
 	/** Index of all strings managed by the tree */
 	void *strings;
-	/** Function to generate the location of a node */
-	void (* gen_loc)(struct zz_location *, void *);
-	/** Data for the gen_loc function */
-	void *gen_loc_data;
 };
 
 /**
@@ -133,11 +119,11 @@ struct zz_tree {
  *
  * @memberof zz_tree
  * @param tree a zz_tree
- * @param token_types all node types
- * @param token_types_size number of elements in _token_types_
+ * @param token_names all node names
+ * @param token_names_size number of elements in _token_names_
  */
-void zz_tree_init(struct zz_tree *tree, const struct zz_node_type *token_types,
-		size_t token_types_size);
+void zz_tree_init(struct zz_tree *tree,
+		const char *const *token_names, size_t token_names_size);
 /**
  * Destroy tree 
  *
@@ -259,16 +245,6 @@ struct zz_node *zz_string(struct zz_tree *tree, int tok, const char *val);
  * @return a new zz_node allocated by _tree_
  */
 struct zz_node *zz_pointer(struct zz_tree *tree, int tok, void *val);
-/**
- * Create a nonterminal node  
- *
- * @memberof zz_tree
- * @param tree a zz_tree
- * @param tok a token
- * @param val a zz_list
- * @return a new zz_node allocated by _tree_
- */
-struct zz_node *zz_inner(struct zz_tree *tree, int tok, struct zz_list list);
 
 /**
  * Return integer data associated with node 
