@@ -123,7 +123,7 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size,
 void zz_tree_destroy(struct zz_tree *tree);
 
 /**
- * Get token name for token, or "<bad>" if unexistant 
+ * Get token name for token, or __NULL__ if nonexistent
  *
  * @memberof zz_tree
  * @param tree a zz_tree
