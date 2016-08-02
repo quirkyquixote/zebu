@@ -123,23 +123,6 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size,
 void zz_tree_destroy(struct zz_tree *tree);
 
 /**
- * Get node type for token in tree, "<bad>" if nonexistant 
- *
- * @memberof zz_tree
- * @param tree a zz_tree
- * @param tok a valid token for _tree_
- * @return type of _tok_, or __NULL__
- */
-int zz_tree_token_type(struct zz_tree *tree, int tok);
-/**
- * Get node type for node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @return type of the token of _node_, or __NULL__
- */
-int zz_token_type(struct zz_node *node);
-/**
  * Get token name for token, or "<bad>" if unexistant 
  *
  * @memberof zz_tree
