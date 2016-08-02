@@ -459,7 +459,8 @@ void zz_node_error(struct zz_node *node, const char *msg)
 	node->tree->error(node, msg);
 }
 
-void zz_error(const char *msg, const char *file, size_t line, size_t column)
+void zz_error(const char *msg, const char *file, size_t first_line,
+		size_t first_column, size_t last_line, size_t last_column)
 {
 	FILE *f;
 	int i;
@@ -467,26 +468,30 @@ void zz_error(const char *msg, const char *file, size_t line, size_t column)
 	int r;
 
 	if (file == NULL) {
-		fprintf(stderr, "<file>:%d: %s\n", line, msg);
+		fprintf(stderr, "<file>:%d: %s\n", first_line, msg);
 		return;
 	}
-	fprintf(stderr, "%s:%d: %s", file, line, msg);
+	fprintf(stderr, "%s:%d: %s", file, first_line, msg);
 	f = fopen(file, "r");
 	if (f == NULL)
 		return;
 	fseek(f, 0, SEEK_SET);
-	for (i = 1; i < line; ++i) {
+	for (i = 1; i < first_line; ++i) {
 		while (fgetc(f) != '\n')
 			continue;
 	}
-	fprintf(stderr, "\n");
+	fputc('\n', stderr);
 	r = ftell(f);
 	for (i = 0; (c = fgetc(f)) != '\n'; ++i)
 		fputc(c, stderr);
-	fprintf(stderr, "\n");
+	if (last_line > first_line)
+		last_column = i - 1;
+	fputc('\n', stderr);
 	fseek(f, r, SEEK_SET);
-	for (i = 1; i < column; ++i)
+	for (i = 1; i < first_column; ++i)
 		fputc(fgetc(f) == '\t' ? '\t' : ' ', stderr);
-	fprintf(stderr, "^\n");
+	for (; i <= last_column; ++i)
+		fputc(fgetc(f) == '\t' ? '\t' : '^', stderr);
+	fputc('\n', stderr);
 	fclose(f);
 }

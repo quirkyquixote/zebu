@@ -480,8 +480,10 @@ void zz_node_error(struct zz_node *node, const char *msg);
  * @param msg error messabe to be printed
  * @param file path to the file with the error
  * @param line offending line
- * @param column offending column
+ * @param first_column first offending column
+ * @param last_column last offending column
  */
-void zz_error(const char *msg, const char *file, size_t line, size_t column);
+void zz_error(const char *msg, const char *file, size_t first_line,
+		size_t first_column, size_t last_line, size_t last_column);
 
 #endif
