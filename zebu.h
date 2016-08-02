@@ -61,19 +61,6 @@ union zz_node_data {
 };
 
 /**
- * Location in a file from which a node was parsed
- * @ingroup Zebu
- */
-struct zz_location {
-	/** Name of the file */
-	const char *file;
-	/** Line number from where this node was parsed */
-	size_t line;
-	/** Column number from where this node was parsed */
-	size_t column;
-};
-
-/**
  * Node in an Abstract Syntax Tree 
  * @ingroup Zebu
  */
