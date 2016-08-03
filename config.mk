@@ -9,7 +9,7 @@ libdir = $(prefix)/lib
 
 CPPFLAGS =
 
-CFLAGS = -ansi \
+CFLAGS = -std=c99 \
 	 -pedantic \
 	 -Werror \
 	 -Wfatal-errors

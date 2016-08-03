@@ -8,7 +8,7 @@ Bison, hence the name and the jokeyish zz namespace.
 Requirements
 ------------
 
-Just ANSI C.
+Just C.
 
 Installation
 ------------
@@ -27,11 +27,14 @@ API; the bullet points are:
 The zz_tree struct manages a full tree, including resource allocation.
 Individual nodes are of type zz_node.
 
-To create a tree, you must provide a list of valid node types zz_node_type: the
-index of the object in the table represents the "token", and the type includes
-a string that is used to print the token in error messages and a field
-indicating what kind of data may be attached to that kind of node.
+Trees may take a list of token names, provided as a string array: the position
+of each string in the array refers to the token field of zz_node and is used to
+format a number of error messages, mostly through the zz_match and zz_match_end
+functions.
 
-Leaves in the AST may hold data of type int, unsigned int, double, char\*
+All nodes in the AST may hold data of type int, unsigned int, double, char\*
 (automatically allocated by the tree), or void\* (the referenced memory must be
-managed by the user); inner nodes do not hold data, just more nodes.
+managed by the user).
+
+Trees can be given a node size larger than sizeof(struct zz_node): the extra
+bytes may be used to store user-defined fields.

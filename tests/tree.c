@@ -1,5 +1,6 @@
 
 #include <assert.h>
+#include <string.h>
 
 #include "../zebu.h"
 
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
 	assert(strcmp(zz_to_string(node), "314") == 0);
 
 	assert((node = zz_pointer(&tree, 2, &tree)) != NULL);
-	assert(strcmp(zz_to_pointer(node), &tree) == 0);
+	assert(zz_to_pointer(node) == &tree);
 
 	exit(EXIT_SUCCESS);
 }

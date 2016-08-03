@@ -2,6 +2,7 @@
 #ifndef ZEBU_H_
 #define ZEBU_H_
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -33,14 +34,14 @@ enum {
 };
 
 /**
- * List of zz_node
+ * Doubly-linked list
  * @ingroup Zebu
  */
 struct zz_list {
-	/** First node in the list */
-	struct zz_node *first;
-	/** Last node in the list */
-	struct zz_node *last;
+	/** Previous node */
+	struct zz_list *prev;
+	/** Next node */
+	struct zz_list *next;
 };
 
 /**
@@ -65,12 +66,12 @@ union zz_node_data {
  * @ingroup Zebu
  */
 struct zz_node {
-	/** Tree to which this node belongs */
-	struct zz_tree *tree;
-	/** Next sibling */
-	struct zz_node *next;
+	/** Siblings */
+	struct zz_list siblings;
 	/** Children */
 	struct zz_list children;
+	/** Tree to which this node belongs */
+	struct zz_tree *tree;
 	/** Token for this node */
 	int token;
 	/** Type of data held by the node */
@@ -220,13 +221,174 @@ struct zz_node *zz_string(struct zz_tree *tree, int tok, const char *val);
 struct zz_node *zz_pointer(struct zz_tree *tree, int tok, void *val);
 
 /**
+ * Initialize a list
+ *
+ * Makes the prev and next pointers point to list: if this is intended to be a
+ * sentinel node, it represents an empty list; if it is supposed to be a field
+ * inside a node with data, it represents an unlinked node.
+ *
+ * @memberof zz_list
+ * @param list a zz_list
+ */
+static inline void zz_list_init(struct zz_list *list)
+{
+	list->next = list;
+	list->prev = list;
+}
+/**
+ * Unlinks a node from a list
+ *
+ * Links together the prev and next nodes to close the gap; it doesn't relink
+ * node to itself, use zz_list_init() for that.
+ *
+ * @memberof zz_list
+ * @param node node to unlink
+ */
+static inline void zz_unlink(struct zz_list *node)
+{
+	node->next->prev = node->prev;
+	node->prev->next = node->next;
+}
+/**
+ * Inserts node before list
+ *
+ * If node was part of another list, it will be invalidated; you must use
+ * zz_list_unlink() on it first.
+ *
+ * @memberof zz_list
+ * @param prev a node in a list
+ * @param node node to be inserted.
+ */
+static inline void zz_insert(struct zz_list *prev, struct zz_list *node)
+{
+	struct zz_list *next = prev->next;
+	next->prev = node;
+	prev->next = node;
+	node->next = next;
+	node->prev = prev;
+}
+/**
+ * Append a node to a list
+ *
+ * @memberof zz_list
+ * @param list sentinel node of a list
+ * @param node node to be inserted
+ */
+static inline void zz_append(struct zz_list *list, struct zz_list *node)
+{
+	zz_insert(list->prev, node);
+}
+/**
+ * Prepend a node to a list
+ *
+ * @memberof zz_list
+ * @param list sentinel node of a list
+ * @param node node to be inserted
+ */
+static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
+{
+	zz_insert(list, node);
+}
+/**
+ * Insert nodes before prev
+ *
+ * @memberof zz_list
+ * @param prev a node in a list
+ * @param list nodes to be inserted
+ */
+static inline void zz_splice(struct zz_list *prev, struct zz_list *list)
+{
+	struct zz_list *next = prev->next;
+	list->prev->next = next;
+	list->next->prev = prev;
+	prev->next = list->next;
+	next->prev = list->prev;
+}
+/**
+ * Append nodes to a list
+ *
+ * @memberof zz_list
+ * @param list sentinel node of a list
+ * @param nodes nodes to be inserted
+ */
+static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
+{
+	zz_splice(list->prev, nodes);
+}
+/**
+ * Prepend nodes to a list
+ *
+ * @memberof zz_list
+ * @param list sentinel node of a list
+ * @param nodes nodes to be inserted
+ */
+static inline void zz_prepend_list(struct zz_list *list, struct zz_list *nodes)
+{
+	zz_splice(list, nodes);
+}
+/**
+ * Replace old_node by node
+ *
+ * Links the prev and next nodes of old_node to node instead; it doesn't relink
+ * old_node to itself, uze zz_list_init() for that; if node already belonged to
+ * a list, it will be invalidaded, use zz_list_unlink() on it first.
+ *
+ * @memberof zz_node
+ * @param old_node the node to be replaced
+ * @param node a node to replace old_node
+ */
+static inline void zz_swap(struct zz_list *old_node, struct zz_list *node)
+{
+	struct zz_list *prev = old_node->prev;
+	struct zz_list *next = old_node->next;
+	prev->next = node;
+	next->prev = node;
+	node->next = next;
+	node->prev = prev;
+}
+/**
+ * Iterate on a zz_list
+ * @memberof zz_list
+ */
+#define zz_list_foreach(iter, list) \
+for ((iter) = (list)->next; (iter) != (list); (iter) = (iter)->next)
+/**
+ * Iterate on a zz_list, backwards
+ * @memberof zz_list
+ */
+#define zz_list_reverse_foreach(iter, list) \
+for ((iter) = (list)->prev; (iter) != (list); (iter) = (iter)->prev)
+
+/**
+ * Return element by index (slow)
+ *
+ * @memberof zz_list
+ * @param list a zz_list
+ * @param index index of the desired element
+ * @return pointer to a node, or __NULL__
+ */
+static inline struct zz_list *zz_list_index(struct zz_list *list, size_t index)
+{
+	struct zz_list *iter;
+	zz_list_foreach(iter, list) {
+		if (index == 0)
+			return iter;
+		--index;
+	}
+	return NULL;
+}
+/**
  * Return integer data associated with node 
  *
  * @memberof zz_node
  * @param node a zz_node
  * @return integer value associated with _node_
  */
-int zz_to_int(const struct zz_node *node);
+static inline int zz_to_int(const struct zz_node *node)
+{
+	assert(node->type == ZZ_INT);
+	return node->data.int_val;
+}
 /**
  * Return unsigned integer data associated with node 
  *
@@ -234,7 +396,11 @@ int zz_to_int(const struct zz_node *node);
  * @param node a zz_node
  * @return unsigned integer value associated with _node_
  */
-unsigned int zz_to_uint(const struct zz_node *node);
+static inline unsigned int zz_to_uint(const struct zz_node *node)
+{
+	assert(node->type == ZZ_UINT);
+	return node->data.uint_val;
+}
 /**
  * Return float data associated with node 
  *
@@ -242,7 +408,11 @@ unsigned int zz_to_uint(const struct zz_node *node);
  * @param node a zz_node
  * @return floating point value associated with _node_
  */
-double zz_to_double(const struct zz_node *node);
+static inline double zz_to_double(const struct zz_node *node)
+{
+	assert(node->type == ZZ_DOUBLE);
+	return node->data.double_val;
+}
 /**
  * Return string data associated with node 
  *
@@ -250,7 +420,11 @@ double zz_to_double(const struct zz_node *node);
  * @param node a zz_node
  * @return string value associated with _node_
  */
-const char *zz_to_string(const struct zz_node *node);
+static inline const char *zz_to_string(const struct zz_node *node)
+{
+	assert(node->type == ZZ_STRING);
+	return node->data.str_val;
+}
 /**
  * Return pointer data associated with node 
  *
@@ -258,16 +432,78 @@ const char *zz_to_string(const struct zz_node *node);
  * @param node a zz_node
  * @return pointer value associated with _node_
  */
-void *zz_to_pointer(const struct zz_node *node);
+static inline void *zz_to_pointer(const struct zz_node *node)
+{
+	assert(node->type == ZZ_POINTER);
+	return node->data.ptr_val;
+}
+/**
+ * Append child to node
+ *
+ * @memberof zz_node
+ * @param pt parent for ch
+ * @param ch child for pt
+ */
+static inline void zz_append_child(struct zz_node *pt, struct zz_node *ch)
+{
+	zz_append(&pt->children, &ch->siblings);
+}
+/**
+ * Prepend child to node
+ *
+ * @memberof zz_node
+ * @param pt parent for ch
+ * @param ch child for pt
+ */
+static inline void zz_prepend_child(struct zz_node *pt, struct zz_node *ch)
+{
+	zz_prepend(&pt->children, &ch->siblings);
+}
+/**
+ * Append children to node
+ *
+ * @memberof zz_node
+ * @param pt parent for ch
+ * @param ch children for pt
+ */
+static inline void zz_append_children(struct zz_node *pt, struct zz_list *ch)
+{
+	zz_append_list(&pt->children, ch);
+}
+/**
+ * Prepend children to node
+ *
+ * @memberof zz_node
+ * @param pt parent for ch
+ * @param ch children for pt
+ */
+static inline void zz_prepend_children(struct zz_node *pt, struct zz_list *ch)
+{
+	zz_prepend_list(&pt->children, ch);
+}
 
 /**
- * Return next sibling 
+ * Return next sibling
  *
  * @memberof zz_node
  * @param node a zz_node
- * @return pointer to the next sibling of _node_, or __NULL__
+ * @return pointer to the next sibling of _node_
  */
-struct zz_node *zz_next(const struct zz_node *node);
+static inline struct zz_node *zz_next(const struct zz_node *node)
+{
+	return (void *)node->siblings.next;
+}
+/**
+ * Return previous sibling
+ *
+ * @memberof zz_node
+ * @param node a zz_node
+ * @return pointer to the prev sibling of _node_
+ */
+static inline struct zz_node *zz_prev(const struct zz_node *node)
+{
+	return (void *)node->siblings.prev;
+}
 /**
  * Return first child 
  *
@@ -275,152 +511,21 @@ struct zz_node *zz_next(const struct zz_node *node);
  * @param node a zz_node
  * @return pointer to the first child of _node_, or __NULL__
  */
-struct zz_node *zz_children(const struct zz_node *node);
+static inline struct zz_node *zz_first_child(const struct zz_node *node)
+{
+	return (void *)node->children.next;
+}
 /**
- * Remove all children from node 
+ * Return last child 
  *
  * @memberof zz_node
  * @param node a zz_node
+ * @return pointer to the last child of _node_, or __NULL__
  */
-void zz_clear(struct zz_node *node);
-/**
- * Append child to node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param child a zz_node to append to _node_'s child list
- */
-void zz_append(struct zz_node *t, struct zz_node *child);
-/**
- * Prepend child to node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param child a zz_node to prepend to _node_'s child list
- */
-void zz_prepend(struct zz_node *t, struct zz_node *child);
-/**
- * Insert child after prev in node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param prev a child of _node_
- * @param child a zz_node to insert in _node_'s child list
- */
-void zz_insert(struct zz_node *t, struct zz_node *prev, struct zz_node *child);
-/**
- * Replace oldc by newc 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param oldc a child of _node_
- * @param newc a zz_node to swap by _oldc_ in _node_'s child list
- */
-void zz_replace(struct zz_node *p, struct zz_node *oldc, struct zz_node *newc);
-/**
- * Append all nodes in list to node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @oaram list a zz_list to append to _node_'s child list
- */
-void zz_append_list(struct zz_node *t, struct zz_list list);
-/**
- * Prepend all nodes in list to node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @oaram list a zz_list to prepend to _node_'s child list
- */
-void zz_prepend_list(struct zz_node *t, struct zz_list list);
-
-/**
- * Copy to initialize empty lists 
- */
-extern const struct zz_list zz_list_empty;
-/**
- * Create a list from the NULL terminated argument list 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param node a zz_node to be the first in the new list
- * @param ... a __NULL__ terminated list of more nodes
- * @return a zz_list object with all nodes
- */
-struct zz_list zz_list(struct zz_node *t, ...);
-/**
- * Append node to list
- *
- * Return the list that results from appending _node_ to _list_;
- * the original list is invalidated 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param node a zz_node
- * @return a zz_list 
- */
-struct zz_list zz_list_append(struct zz_list list, struct zz_node *node);
-/**
- * Prepend node to list
- * 
- * Return the list that results from prepending _node_ to _list_;
- * the original list is invalidated 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param node a zz_node
- * @return a zz_list
- */
-struct zz_list zz_list_prepend(struct zz_list list, struct zz_node *node);
-/**
- * Insert node in list
- * 
- * Return the list that results from inserting _node_ after _prev_ in _list_;
- * the original list is invalidated 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param pref a node in _list_
- * @param node a node to insert after _prev_ 
- * @return a zz_list
- */
-struct zz_list zz_list_insert(struct zz_list list, struct zz_node *prev,
-		struct zz_node *t);
-/**
- * Replace node in list
- *
- * Return the list that results from replacing _oldc_ by _newc_ in _list_;
- * the original list is invalidated 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param oldc child of _list_ to replace
- * @param newc node to replace _oldc_
- * @return a zz_list
- */
-struct zz_list zz_list_replace(struct zz_list list, struct zz_node *oldc,
-		struct zz_node *newc);
-/**
- * Concatenate lists
- *
- * Return the list that results from concatenating _left_ and _right_;
- * both left and right are invalidated 
- *
- * @memberof zz_list
- * @param left a zz_list
- * @param right a zz_list
- * @return a zz_list
- */
-struct zz_list zz_list_concat(struct zz_list left, struct zz_list right);
-/**
- * Return the element of list whose index is i 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param i index of the desired element in _list_
- * @return _i_th node in _list_, or __NULL__
- */
-struct zz_node *zz_list_index(struct zz_list list, int i);
+static inline struct zz_node *zz_last_child(const struct zz_node *node)
+{
+	return (void *)node->children.prev;
+}
 
 /**
  * Print the full tree whose root is _node_ to _f_ 
@@ -429,7 +534,7 @@ struct zz_node *zz_list_index(struct zz_list list, int i);
  * @param node a zz_node
  * @param f a FILE
  */
-void zz_print_node(struct zz_node * node, FILE * f);
+void zz_print_node(struct zz_node *node, FILE * f);
 /**
  * Print the full forest whose roots are _list_ to _f_ 
  *
@@ -437,7 +542,7 @@ void zz_print_node(struct zz_node * node, FILE * f);
  * @param list a zz_list
  * @param f a FILE
  */
-void zz_print_list(struct zz_list list, FILE * f);
+void zz_print_list(struct zz_list *list, FILE * f);
 
 /**
  * Match node
@@ -449,7 +554,7 @@ void zz_print_list(struct zz_list list, FILE * f);
  * @param tok a token
  * @return 0 on success, -1 on failure
  */
-int zz_match(struct zz_node * node, int tok);
+int zz_match(struct zz_node *node, int tok);
 /**
  * Match end of list
  *
@@ -459,7 +564,7 @@ int zz_match(struct zz_node * node, int tok);
  * @param node a zz_node
  * @return 0 on success, -1 on failure
  */
-int zz_match_end(struct zz_node * node);
+int zz_match_end(struct zz_node *node, struct zz_list *list);
 /**
  * Print error from node
  *

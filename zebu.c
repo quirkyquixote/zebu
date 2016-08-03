@@ -2,7 +2,6 @@
 
 #include "zebu.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <string.h>
@@ -39,8 +38,6 @@ struct zz_string_index {
 	size_t used;
 };
 
-const struct zz_list zz_list_empty = { NULL, NULL };
-
 static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
 {
 	struct zz_blob *blob;
@@ -70,6 +67,8 @@ static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 	struct zz_node *node;
 
 	node = zz_alloc(tree, tree->node_size);
+	zz_list_init(&node->siblings);
+	zz_list_init(&node->children);
 	node->tree = tree;
 	return node;
 }
@@ -219,178 +218,20 @@ struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)
 {
 	struct zz_node *ret;
-	struct zz_node *it;
+	struct zz_list *iter;
+	struct zz_node *tmp;
 
 	ret = zz_copy(tree, node);
-	if (ret != NULL) {
-		for (it = node->children.first; it; it = it->next)
-			zz_append(ret, zz_copy_recursive(tree, it));
+	if (ret == NULL)
+		return ret;
+	zz_list_foreach(iter, &node->children) {
+		tmp = zz_copy_recursive(tree, (void *)iter);
+		zz_append(&ret->children, &tmp->siblings);
 	}
 	return ret;
 }
 
-int zz_to_int(const struct zz_node *node)
-{
-	assert(node->type == ZZ_INT);
-	return node->data.int_val;
-}
-
-unsigned int zz_to_uint(const struct zz_node *node)
-{
-	assert(node->type == ZZ_UINT);
-	return node->data.uint_val;
-}
-
-double zz_to_double(const struct zz_node *node)
-{
-	assert(node->type == ZZ_DOUBLE);
-	return node->data.double_val;
-}
-
-const char *zz_to_string(const struct zz_node *node)
-{
-	assert(node->type == ZZ_STRING);
-	return node->data.str_val;
-}
-
-void *zz_to_pointer(const struct zz_node *node)
-{
-	assert(node->type == ZZ_POINTER);
-	return node->data.ptr_val;
-}
-
-struct zz_node *zz_next(const struct zz_node *node)
-{
-	return node->next;
-}
-
-struct zz_node *zz_children(const struct zz_node *node)
-{
-	return node->children.first;
-}
-
-void zz_clear(struct zz_node *node)
-{
-	node->children = zz_list_empty;
-}
-
-void zz_append(struct zz_node *node, struct zz_node *child)
-{
-	node->children = zz_list_append(node->children, child);
-}
-
-void zz_prepend(struct zz_node *node, struct zz_node *child)
-{
-	node->children = zz_list_prepend(node->children, child);
-}
-
-void zz_insert(struct zz_node *node, struct zz_node *prev,
-		struct zz_node *child)
-{
-	node->children = zz_list_insert(node->children, prev, child);
-}
-
-void zz_replace(struct zz_node *node, struct zz_node *oldc, struct zz_node *newc)
-{
-	node->children = zz_list_replace(node->children, oldc, newc);
-}
-
-void zz_append_list(struct zz_node *node, struct zz_list list)
-{
-	node->children = zz_list_concat(node->children, list);
-}
-
-void zz_prepend_list(struct zz_node *node, struct zz_list list)
-{
-	node->children = zz_list_concat(list, node->children);
-}
-
-struct zz_list zz_list(struct zz_node * t, ...)
-{
-	struct zz_list list;
-	va_list ap;
-
-	list.first = t;
-	list.last = t;
-	va_start(ap, t);
-	while ((list.last->next = va_arg(ap, void *)))
-		list.last = list.last->next;
-	va_end(ap);
-	return list;
-}
-
-struct zz_list zz_list_append(struct zz_list list,
-		struct zz_node * t)
-{
-	if (list.last)
-		list.last->next = t;
-	else
-		list.first = t;
-	list.last = t;
-	return list;
-}
-
-struct zz_list zz_list_prepend(struct zz_list list,
-		struct zz_node * t)
-{
-	if (list.first)
-		t->next = list.first;
-	else
-		list.last = t;
-	list.first = t;
-	return list;
-}
-
-struct zz_list zz_list_insert(struct zz_list list,
-		struct zz_node * prev, struct zz_node * t)
-{
-	t->next = prev->next;
-	prev->next = t;
-	if (list.last == prev)
-		list.last = t;
-	return list;
-}
-
-struct zz_list zz_list_replace(struct zz_list list, struct zz_node *oldc,
-		struct zz_node *newc)
-{
-	if (list.first == oldc) {
-		newc->next = oldc->next;
-		list.first = newc;
-	} else {
-		struct zz_node *prev;
-		for (prev = list.first; prev != NULL; prev = prev->next) {
-			if (prev->next == oldc) {
-				newc->next = oldc->next;
-				prev->next = newc;
-				break;
-			}
-		}
-	}
-	return list;
-}
-
-struct zz_list zz_list_concat(struct zz_list left,
-		struct zz_list right)
-{
-	if (left.first == NULL)
-		return right;
-	if (right.first == NULL)
-		return left;
-	left.last->next = right.first;
-	left.last = right.last;
-	return left;
-}
-
-struct zz_node * zz_list_index(struct zz_list list, int i)
-{
-	struct zz_node *ret;
-	for (ret = list.first; ret && i > 0; --i, ret = ret->next)
-		continue;
-	return ret;
-}
-
-void zz_print_node(struct zz_node * node, FILE * f)
+void zz_print_node(struct zz_node *node, FILE * f)
 {
 	fprintf(f, "[%s", zz_token_name(node));
 
@@ -414,17 +255,16 @@ void zz_print_node(struct zz_node * node, FILE * f)
 		break;
 	}
 
-	zz_print_list(node->children, f);
+	zz_print_list(&node->children, f);
 	fprintf(f, "]");
 }
 
-void zz_print_list(struct zz_list list, FILE * f)
+void zz_print_list(struct zz_list *list, FILE * f)
 {
-	struct zz_node *it;
-
-	for (it = list.first; it != NULL; it = zz_next(it)) {
+	struct zz_list *iter;
+	zz_list_foreach(iter, list) {
 		fprintf(f, " ");
-		zz_print_node(it, f);
+		zz_print_node((void *)iter, f);
 	}
 }
 
@@ -445,9 +285,9 @@ int zz_match(struct zz_node *node, int tok)
 	return 0;
 }
 
-int zz_match_end(struct zz_node *node)
+int zz_match_end(struct zz_node *node, struct zz_list *list)
 {
-	if (node != NULL) {
+	if (node != (void *)list) {
 		node->tree->error(node, "unexpected node");
 		return -1;
 	}
