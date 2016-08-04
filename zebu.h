@@ -418,50 +418,6 @@ static inline void *zz_to_pointer(const struct zz_node *node)
 	return node->data.ptr_val;
 }
 /**
- * Append sibling
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param sib node to be added
- */
-static inline void zz_append_sibling(struct zz_node *node, struct zz_node *sb)
-{
-	zz_insert(&node->siblings, &sb->siblings);
-}
-/**
- * Prepend sibling
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param sib node to be added
- */
-static inline void zz_prepend_sibling(struct zz_node *node, struct zz_node *sb)
-{
-	zz_insert(&node->siblings, &sb->siblings);
-}
-/**
- * Append siblings
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param sib nodes to be added
- */
-static inline void zz_append_siblings(struct zz_node *node, struct zz_node *sb)
-{
-	zz_splice(&node->siblings, &sb->siblings);
-}
-/**
- * Prepend siblings
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param sib nodes to be added
- */
-static inline void zz_prepend_siblings(struct zz_node *node, struct zz_node *sb)
-{
-	zz_splice(&node->siblings, &sb->siblings);
-}
-/**
  * Append child to node
  *
  * @memberof zz_node
