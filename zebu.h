@@ -330,13 +330,13 @@ static inline void zz_swap(struct zz_list *old_node, struct zz_list *node)
  * Iterate on a zz_list
  * @memberof zz_list
  */
-#define zz_list_foreach(iter, list) \
+#define zz_foreach(iter, list) \
 for ((iter) = (list)->next; (iter) != (list); (iter) = (iter)->next)
 /**
  * Iterate on a zz_list, backwards
  * @memberof zz_list
  */
-#define zz_list_reverse_foreach(iter, list) \
+#define zz_reverse_foreach(iter, list) \
 for ((iter) = (list)->prev; (iter) != (list); (iter) = (iter)->prev)
 
 /**
@@ -550,6 +550,22 @@ static inline struct zz_node *zz_last_child(const struct zz_node *node)
 {
 	return (void *)node->children.prev;
 }
+/**
+ * Iterate on the children of a zz_node
+ * @memberof zz_node
+ */
+#define zz_foreach_child(iter, parent) \
+for ((iter) = (void *)(parent)->children.next; \
+	(iter) != (void *)&(parent)->children; \
+	(iter) = (void *)(iter)->siblings.next)
+/**
+ * Iterate on a zz_list, backwards
+ * @memberof zz_list
+ */
+#define zz_reverse_foreach_child(iter, parent) \
+for ((iter) = (void *)(parent)->children.prev; \
+	(iter) != (void *)&(parent)->children; \
+	(iter) = (void *)(iter)->siblings.prev)
 
 /**
  * Print the full tree whose root is _node_ to _f_ 
