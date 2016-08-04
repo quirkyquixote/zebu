@@ -9,7 +9,6 @@ OBJECTS += location.o
 OBJECTS += print.o
 OBJECTS += string.o
 OBJECTS += tree.o
-OBJECTS += walk.o
 
 PROGRAMS += alloc
 PROGRAMS += build
@@ -19,7 +18,6 @@ PROGRAMS += location
 PROGRAMS += print
 PROGRAMS += string
 PROGRAMS += tree
-PROGRAMS += walk
 
 TESTS += test_alloc
 TESTS += test_build
@@ -29,7 +27,6 @@ TESTS += test_location
 TESTS += test_print
 TESTS += test_string
 TESTS += test_tree
-TESTS += test_walk
 
 # Required for the allocation test to compile
 ALL_CFLAGS += -Wno-overlength-strings
@@ -53,7 +50,6 @@ location: location.o ../zebu.o
 print: print.o ../zebu.o
 string: string.o ../zebu.o
 tree: tree.o ../zebu.o
-walk: walk.o ../zebu.o
 
 test_%: %
 	@$(call colorecho,TEST $<); ./$<

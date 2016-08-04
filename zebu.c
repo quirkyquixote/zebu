@@ -202,54 +202,39 @@ struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)
 {
 	struct zz_node *ret;
-	struct zz_list *iter;
-	struct zz_node *tmp;
+	struct zz_node *iter;
 
 	ret = zz_copy(tree, node);
 	if (ret == NULL)
 		return ret;
-	zz_list_foreach(iter, &node->children) {
-		tmp = zz_copy_recursive(tree, (void *)iter);
-		zz_append(&ret->children, &tmp->siblings);
-	}
+	zz_foreach_child(iter, node)
+		zz_append_child(ret, zz_copy_recursive(tree, iter));
 	return ret;
 }
 
-void zz_print_node(struct zz_node *node, FILE * f)
+void zz_print(struct zz_node *node, FILE * f)
 {
+	struct zz_node *iter;
+
 	fprintf(f, "[%s", node->token);
 
-	switch (node->type) {
-	case ZZ_NULL:
-		break;
-	case ZZ_INT:
+	if (node->type == ZZ_INT)
 		fprintf(f, " %d", node->data.int_val);
-		break;
-	case ZZ_UINT:
+	else if (node->type == ZZ_UINT)
 		fprintf(f, " %u", node->data.uint_val);
-		break;
-	case ZZ_DOUBLE:
+	else if (node->type == ZZ_DOUBLE)
 		fprintf(f, " %f", node->data.double_val);
-		break;
-	case ZZ_STRING:
+	else if (node->type == ZZ_STRING)
 		fprintf(f, " \"%s\"", node->data.str_val);
-		break;
-	case ZZ_POINTER:
+	else if (node->type == ZZ_POINTER)
 		fprintf(f, " %p", node->data.ptr_val);
-		break;
-	}
 
-	zz_print_list(&node->children, f);
-	fprintf(f, "]");
-}
-
-void zz_print_list(struct zz_list *list, FILE * f)
-{
-	struct zz_list *iter;
-	zz_list_foreach(iter, list) {
+	zz_foreach_child(iter, node) {
 		fprintf(f, " ");
-		zz_print_node((void *)iter, f);
+		zz_print(iter, f);
 	}
+
+	fprintf(f, "]");
 }
 
 void zz_error(const char *msg, const char *file, size_t first_line,

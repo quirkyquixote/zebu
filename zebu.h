@@ -350,7 +350,7 @@ for ((iter) = (list)->prev; (iter) != (list); (iter) = (iter)->prev)
 static inline struct zz_list *zz_list_index(struct zz_list *list, size_t index)
 {
 	struct zz_list *iter;
-	zz_list_foreach(iter, list) {
+	zz_foreach(iter, list) {
 		if (index == 0)
 			return iter;
 		--index;
@@ -530,15 +530,7 @@ for ((iter) = (void *)(parent)->children.prev; \
  * @param node a zz_node
  * @param f a FILE
  */
-void zz_print_node(struct zz_node *node, FILE * f);
-/**
- * Print the full forest whose roots are _list_ to _f_ 
- *
- * @memberof zz_list
- * @param list a zz_list
- * @param f a FILE
- */
-void zz_print_list(struct zz_list *list, FILE * f);
+void zz_print(struct zz_node *node, FILE * f);
 
 /**
  * Print error message

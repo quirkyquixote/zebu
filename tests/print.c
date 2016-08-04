@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	node = zz_pointer(&tree, TOK_BAZ, &tree);
 	zz_append_child(root, node);
 
-	zz_print_node(root, stdout);
+	zz_print(root, stdout);
 	printf("\n");
 	exit(EXIT_SUCCESS);
 }

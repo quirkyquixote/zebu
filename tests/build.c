@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 	n5 = zz_string(&tree, FOO_STRING, "Hello, World!");
 	zz_append_child(n4, n5);
 
-	zz_print_node(n0, stdout);
+	zz_print(n0, stdout);
 	fputc('\n', stdout);
 	exit(EXIT_SUCCESS);
 }

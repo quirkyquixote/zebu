@@ -8,4 +8,3 @@ tests/location
 tests/print
 tests/string
 tests/tree
-tests/walk
