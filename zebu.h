@@ -292,6 +292,9 @@ static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
 /**
  * Insert nodes before prev
  *
+ * The nodes to be inserted should be linked in a single loop with _list_
+ * being the first one, _list->prev_ the last, and no sentinel node.
+ *
  * @memberof zz_list
  * @param prev a node in a list
  * @param list nodes to be inserted
@@ -300,12 +303,15 @@ static inline void zz_splice(struct zz_list *prev, struct zz_list *list)
 {
 	struct zz_list *next = prev->next;
 	list->prev->next = next;
-	list->next->prev = prev;
-	prev->next = list->next;
 	next->prev = list->prev;
+	prev->next = list;
+	list->prev = prev;
 }
 /**
  * Append nodes to a list
+ *
+ * The nodes to be inserted should be linked in a single loop with _nodes_
+ * being the first one, _nodes->prev_ the last, and no sentinel node.
  *
  * @memberof zz_list
  * @param list sentinel node of a list
@@ -317,6 +323,9 @@ static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
 }
 /**
  * Prepend nodes to a list
+ *
+ * The nodes to be inserted should be linked in a single loop with _nodes_
+ * being the first one, _nodes->prev_ the last, and no sentinel node.
  *
  * @memberof zz_list
  * @param list sentinel node of a list
@@ -438,6 +447,28 @@ static inline void *zz_to_pointer(const struct zz_node *node)
 	return node->data.ptr_val;
 }
 /**
+ * Insert sibling after node
+ *
+ * @memberof zz_node
+ * @param node a zz_node
+ * @param sib node to be added
+ */
+static inline void zz_insert_sibling(struct zz_node *node, struct zz_node *sb)
+{
+	zz_insert(&node->siblings, &sb->siblings);
+}
+/**
+ * Splice siblings after node
+ *
+ * @memberof zz_node
+ * @param node a zz_node
+ * @param sib nodes to be added
+ */
+static inline void zz_splice_siblings(struct zz_node *node, struct zz_node *sb)
+{
+	zz_splice(&node->siblings, &sb->siblings);
+}
+/**
  * Append child to node
  *
  * @memberof zz_node
@@ -466,9 +497,9 @@ static inline void zz_prepend_child(struct zz_node *pt, struct zz_node *ch)
  * @param pt parent for ch
  * @param ch children for pt
  */
-static inline void zz_append_children(struct zz_node *pt, struct zz_list *ch)
+static inline void zz_append_children(struct zz_node *pt, struct zz_node *ch)
 {
-	zz_append_list(&pt->children, ch);
+	zz_append_list(&pt->children, &ch->siblings);
 }
 /**
  * Prepend children to node
@@ -477,9 +508,9 @@ static inline void zz_append_children(struct zz_node *pt, struct zz_list *ch)
  * @param pt parent for ch
  * @param ch children for pt
  */
-static inline void zz_prepend_children(struct zz_node *pt, struct zz_list *ch)
+static inline void zz_prepend_children(struct zz_node *pt, struct zz_node *ch)
 {
-	zz_prepend_list(&pt->children, ch);
+	zz_prepend_list(&pt->children, &ch->siblings);
 }
 
 /**

@@ -2,7 +2,9 @@
 include ../config.mk
 
 OBJECTS += alloc.o
+OBJECTS += build.o
 OBJECTS += error.o
+OBJECTS += list.o
 OBJECTS += location.o
 OBJECTS += print.o
 OBJECTS += string.o
@@ -10,7 +12,9 @@ OBJECTS += tree.o
 OBJECTS += walk.o
 
 PROGRAMS += alloc
+PROGRAMS += build
 PROGRAMS += error
+PROGRAMS += list
 PROGRAMS += location
 PROGRAMS += print
 PROGRAMS += string
@@ -18,7 +22,9 @@ PROGRAMS += tree
 PROGRAMS += walk
 
 TESTS += test_alloc
+TESTS += test_build
 TESTS += test_error
+TESTS += test_list
 TESTS += test_location
 TESTS += test_print
 TESTS += test_string
@@ -40,7 +46,9 @@ clean-test:
 	@$(RM) $(PROGRAMS)
 
 alloc: alloc.o ../zebu.o
+build: build.o ../zebu.o
 error: error.o ../zebu.o
+list: list.o ../zebu.o
 location: location.o ../zebu.o
 print: print.o ../zebu.o
 string: string.o ../zebu.o
