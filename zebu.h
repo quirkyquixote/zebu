@@ -541,41 +541,6 @@ void zz_print_node(struct zz_node *node, FILE * f);
 void zz_print_list(struct zz_list *list, FILE * f);
 
 /**
- * Match node
- *
- * If the token for _node_ is not _tok_, call zz_node_error() and return -1.
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param parent the parent of node
- * @param token a token
- * @param error function to report the error
- * @return 0 on success, -1 on failure
- */
-int zz_match(struct zz_node *node, struct zz_node *parent, const char *token,
-		void(*error)(void *, const char *));
-/**
- * Match end of list
- *
- * If _node->next_ is not __NULL__, call zz_node_error() and return -1.
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param parent the parent of node
- * @param error function to report the error
- * @return 0 on success, -1 on failure
- */
-int zz_match_end(struct zz_node *node, struct zz_node *parent,
-		void(*error)(void *, const char *));
-/**
- * Print error from node
- *
- * @memberof zz_node
- * @param node a zz_node
- * @param msg error messabe to be printed
- */
-void zz_node_error(struct zz_node *node, const char *msg);
-/**
  * Print error message
  *
  * Prints an error message including the file name _file_ and line _line_, then

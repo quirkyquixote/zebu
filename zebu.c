@@ -252,38 +252,6 @@ void zz_print_list(struct zz_list *list, FILE * f)
 	}
 }
 
-int zz_match(struct zz_node *node, struct zz_node *parent, const char *token,
-		void(*error)(void *, const char *))
-{
-	char buf[1024];
-
-	if (node == (void *)&parent->children) {
-		error(node, "unexpected end of node list");
-		return -1;
-	} else if (node->token != token) {
-		snprintf(buf, sizeof(buf), "expected %s, got %s",
-			node->token, token);
-		error(node, buf);
-		return -1;
-	}
-	return 0;
-}
-
-int zz_match_end(struct zz_node *node, struct zz_node *parent,
-		void(*error)(void *, const char *))
-{
-	if (node != (void *)&parent->children) {
-		error(node, "unexpected node");
-		return -1;
-	}
-	return 0;
-}
-
-void zz_node_error(struct zz_node *node, const char *msg)
-{
-	fprintf(stderr, "%s\n", msg);
-}
-
 void zz_error(const char *msg, const char *file, size_t first_line,
 		size_t first_column, size_t last_line, size_t last_column)
 {
