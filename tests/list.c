@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	assert(n1.prev == &n0);
 
 	/* (0, 1, 2) */
-	zz_insert(&n1, &n2);
+	zz_insert(&n0, &n2);
 	assert(n0.next == &n1);
 	assert(n1.next == &n2);
 	assert(n2.next == &n0);
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 	/* (0, 1, 3, 4, 2) */
 	zz_insert(&n3, &n4);
-	zz_splice(&n1, &n3);
+	zz_splice(&n2, &n3);
 	assert(n0.next == &n1);
 	assert(n1.next == &n3);
 	assert(n3.next == &n4);
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
 	assert(n2.prev == &n4);
 
 	/* (0, 3, 4, 2, 5) */
-	zz_append(&n0, &n5);
+	zz_insert(&n0, &n5);
 	assert(n0.next == &n3);
 	assert(n3.next == &n4);
 	assert(n4.next == &n2);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 	assert(n5.prev == &n2);
 
 	/* (6, 0, 3, 4, 2, 5) */
-	zz_prepend(&n5, &n6);
+	zz_insert(&n0, &n6);
 	assert(n6.next == &n0);
 	assert(n0.next == &n3);
 	assert(n3.next == &n4);

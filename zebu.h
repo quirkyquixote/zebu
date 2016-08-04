@@ -259,9 +259,9 @@ static inline void zz_unlink(struct zz_list *node)
  * @param prev a node in a list
  * @param node node to be inserted.
  */
-static inline void zz_insert(struct zz_list *prev, struct zz_list *node)
+static inline void zz_insert(struct zz_list *next, struct zz_list *node)
 {
-	struct zz_list *next = prev->next;
+	struct zz_list *prev = next->prev;
 	next->prev = node;
 	prev->next = node;
 	node->next = next;
@@ -276,7 +276,7 @@ static inline void zz_insert(struct zz_list *prev, struct zz_list *node)
  */
 static inline void zz_append(struct zz_list *list, struct zz_list *node)
 {
-	zz_insert(list->prev, node);
+	zz_insert(list, node);
 }
 /**
  * Prepend a node to a list
@@ -287,7 +287,7 @@ static inline void zz_append(struct zz_list *list, struct zz_list *node)
  */
 static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
 {
-	zz_insert(list, node);
+	zz_insert(list->next, node);
 }
 /**
  * Insert nodes before prev
@@ -299,9 +299,9 @@ static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
  * @param prev a node in a list
  * @param list nodes to be inserted
  */
-static inline void zz_splice(struct zz_list *prev, struct zz_list *list)
+static inline void zz_splice(struct zz_list *next, struct zz_list *list)
 {
-	struct zz_list *next = prev->next;
+	struct zz_list *prev = next->prev;
 	list->prev->next = next;
 	next->prev = list->prev;
 	prev->next = list;
@@ -319,7 +319,7 @@ static inline void zz_splice(struct zz_list *prev, struct zz_list *list)
  */
 static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
 {
-	zz_splice(list->prev, nodes);
+	zz_splice(list, nodes);
 }
 /**
  * Prepend nodes to a list
@@ -333,7 +333,7 @@ static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
  */
 static inline void zz_prepend_list(struct zz_list *list, struct zz_list *nodes)
 {
-	zz_splice(list, nodes);
+	zz_splice(list->next, nodes);
 }
 /**
  * Replace old_node by node
@@ -447,24 +447,46 @@ static inline void *zz_to_pointer(const struct zz_node *node)
 	return node->data.ptr_val;
 }
 /**
- * Insert sibling after node
+ * Append sibling
  *
  * @memberof zz_node
  * @param node a zz_node
  * @param sib node to be added
  */
-static inline void zz_insert_sibling(struct zz_node *node, struct zz_node *sb)
+static inline void zz_append_sibling(struct zz_node *node, struct zz_node *sb)
 {
 	zz_insert(&node->siblings, &sb->siblings);
 }
 /**
- * Splice siblings after node
+ * Prepend sibling
+ *
+ * @memberof zz_node
+ * @param node a zz_node
+ * @param sib node to be added
+ */
+static inline void zz_prepend_sibling(struct zz_node *node, struct zz_node *sb)
+{
+	zz_insert(&node->siblings, &sb->siblings);
+}
+/**
+ * Append siblings
  *
  * @memberof zz_node
  * @param node a zz_node
  * @param sib nodes to be added
  */
-static inline void zz_splice_siblings(struct zz_node *node, struct zz_node *sb)
+static inline void zz_append_siblings(struct zz_node *node, struct zz_node *sb)
+{
+	zz_splice(&node->siblings, &sb->siblings);
+}
+/**
+ * Prepend siblings
+ *
+ * @memberof zz_node
+ * @param node a zz_node
+ * @param sib nodes to be added
+ */
+static inline void zz_prepend_siblings(struct zz_node *node, struct zz_node *sb)
 {
 	zz_splice(&node->siblings, &sb->siblings);
 }
