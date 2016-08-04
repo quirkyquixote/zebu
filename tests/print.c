@@ -3,7 +3,9 @@
 
 #include "../zebu.h"
 
-static const char *names[] = { "foo", "bar", "baz" };
+static const char *TOK_FOO = "foo";
+static const char *TOK_BAR = "bar";
+static const char *TOK_BAZ = "baz";
 
 int main(int argc, char *argv[])
 {
@@ -11,22 +13,22 @@ int main(int argc, char *argv[])
 	struct zz_node *root;
 	struct zz_node *node;
 
-	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
+	zz_tree_init(&tree, sizeof(struct zz_node));
 
-	root = zz_null(&tree, 0);
+	root = zz_null(&tree, TOK_FOO);
 	assert(root != NULL);
 
-	node = zz_null(&tree, 1);
+	node = zz_null(&tree, TOK_BAR);
 	zz_append_child(root, node);
-	node = zz_int(&tree, 2, -314);
+	node = zz_int(&tree, TOK_BAZ, -314);
 	zz_append_child(root, node);
-	node = zz_uint(&tree, 1, 314);
+	node = zz_uint(&tree, TOK_BAR, 314);
 	zz_append_child(root, node);
-	node = zz_double(&tree, 2, 3.14);
+	node = zz_double(&tree, TOK_BAZ, 3.14);
 	zz_append_child(root, node);
-	node = zz_string(&tree, 1, "314");
+	node = zz_string(&tree, TOK_BAR, "314");
 	zz_append_child(root, node);
-	node = zz_pointer(&tree, 2, &tree);
+	node = zz_pointer(&tree, TOK_BAZ, &tree);
 	zz_append_child(root, node);
 
 	zz_print_node(root, stdout);

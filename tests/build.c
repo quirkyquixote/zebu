@@ -2,37 +2,22 @@
 
 #include "../zebu.h"
 
-enum {
-	FOO_FUNC,
-	FOO_TYPE,
-	FOO_IDENT,
-	FOO_ARGLIST,
-	FOO_ARG,
-	FOO_POINTER,
-	FOO_BODY,
-	FOO_CALL,
-	FOO_STRING,
-	FOO_NUM_TOKENS,
-};
-
-static const char *names[] = {
-	"func",
-	"type",
-	"ident",
-	"arglist",
-	"arg",
-	"pointer",
-	"body",
-	"call",
-	"string",
-};
+static const char *FOO_FUNC = "func";
+static const char *FOO_TYPE = "type";
+static const char *FOO_IDENT = "ident";
+static const char *FOO_ARGLIST = "arglist";
+static const char *FOO_ARG = "arg";
+static const char *FOO_POINTER = "pointer";
+static const char *FOO_BODY = "body";
+static const char *FOO_CALL = "call";
+static const char *FOO_STRING = "string";
 
 int main(int argc, char *argv[])
 {
 	struct zz_tree tree;
 	struct zz_node *n0, *n1, *n2, *n3, *n4, *n5;
 
-	zz_tree_init(&tree, sizeof(struct zz_node), names, FOO_NUM_TOKENS);
+	zz_tree_init(&tree, sizeof(struct zz_node));
 
 	n0 = zz_null(&tree, FOO_FUNC);
 	n1 = zz_string(&tree, FOO_TYPE, "int");

@@ -20,26 +20,28 @@ static int get_location(void *ptr)
 	return node->location;
 }
 
-static const char *names[] = { "foo", "bar", "baz" };
+static const char *TOK_FOO = "foo";
+static const char *TOK_BAR = "bar";
+static const char *TOK_BAZ = "baz";
 
 int main(int argc, char *argv[])
 {
 	struct zz_tree tree;
 	struct zz_node *n1, *n2, *n3, *n4, *n5, *n6;
 
-	zz_tree_init(&tree, sizeof(struct node_with_location), names, 3);
+	zz_tree_init(&tree, sizeof(struct node_with_location));
 
-	n1 = zz_null(&tree, 0);
+	n1 = zz_null(&tree, TOK_FOO);
 	set_location(n1, 1);
-	n2 = zz_int(&tree, 1, -314);
+	n2 = zz_int(&tree, TOK_BAR, -314);
 	set_location(n2, 2);
-	n3 = zz_uint(&tree, 2, 314);
+	n3 = zz_uint(&tree, TOK_BAZ, 314);
 	set_location(n3, 3);
-	n4 = zz_double(&tree, 0, 3.14);
+	n4 = zz_double(&tree, TOK_FOO, 3.14);
 	set_location(n4, 5);
-	n5 = zz_string(&tree, 1, "314");
+	n5 = zz_string(&tree, TOK_BAR, "314");
 	set_location(n5, 8);
-	n6 = zz_pointer(&tree, 2, &tree);
+	n6 = zz_pointer(&tree, TOK_BAZ, &tree);
 	set_location(n6, 13);
 
 	assert(get_location(n1) == 1);

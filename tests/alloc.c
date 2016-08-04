@@ -52,7 +52,9 @@ static const char REALLY_LONG_STRING[] =
 "luctus elit quam. Sed sem orci, pharetra vel placerat a, congue vel dolor."
 "Quisque pretium massa non ullamcorper convallis. ";
 
-static const char *names[] = { "foo", "bar", "baz" };
+static const char *TOK_FOO = "foo";
+static const char *TOK_BAR = "bar";
+static const char *TOK_BAZ = "baz";
 
 /* Try allocating until surpassing the size of a blob */
 int allocate_beyond_blob(void)
@@ -62,11 +64,11 @@ int allocate_beyond_blob(void)
 	struct zz_node **nodes;
 	size_t i;
 
-	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
+	zz_tree_init(&tree, sizeof(struct zz_node));
 	len = ZZ_BLOB_SIZE / sizeof(*nodes) + 10;
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i)
-		nodes[i] = zz_uint(&tree, 2, i);
+		nodes[i] = zz_uint(&tree, TOK_BAZ, i);
 	for (i = 0; i < len; ++i)
 		assert(zz_to_uint(nodes[i]) == i);
 	zz_tree_destroy(&tree);
@@ -81,11 +83,11 @@ int allocate_huge_string(void)
 	size_t len;
 	struct zz_node *n1, *n2;
 
-	zz_tree_init(&tree, sizeof(struct zz_node), names, 3);
+	zz_tree_init(&tree, sizeof(struct zz_node));
 	str = REALLY_LONG_STRING;
 	len = strlen(REALLY_LONG_STRING);
-	n1 = zz_string(&tree, 4, str);
-	n2 = zz_string(&tree, 4, str);
+	n1 = zz_string(&tree, TOK_FOO, str);
+	n2 = zz_string(&tree, TOK_BAR, str);
 	assert(n1 != n2);
 	assert(zz_to_string(n1) != str);
 	assert(zz_to_string(n2) != str);

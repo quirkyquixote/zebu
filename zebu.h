@@ -70,10 +70,8 @@ struct zz_node {
 	struct zz_list siblings;
 	/** Children */
 	struct zz_list children;
-	/** Tree to which this node belongs */
-	struct zz_tree *tree;
 	/** Token for this node */
-	int token;
+	const char *token;
 	/** Type of data held by the node */
 	int type;
 	/** Data that depends on the node type */
@@ -90,18 +88,12 @@ struct zz_node {
  * @ingroup Zebu
  */
 struct zz_tree {
-	/** All node names for this tree */
-	const char *const *token_names;
-	/** Size of _token_names */
-	size_t num_tokens;
 	/** Size of each node */
 	size_t node_size;
 	/** All memory managed by this tree */
 	void *blobs;
 	/** Index of all strings managed by the tree */
 	void *strings;
-	/** Function to report an error */
-	void (* error)(void *, const char *);
 };
 
 /**
@@ -110,11 +102,8 @@ struct zz_tree {
  * @memberof zz_tree
  * @param tree a zz_tree
  * @param node_size size of node; it must be at least sizeof(struct zz_node)
- * @param token_names all node names
- * @param num_tokens number of elements in _token_names_
  */
-void zz_tree_init(struct zz_tree *tree, size_t node_size,
-		const char *const *token_names, size_t num_tokens);
+void zz_tree_init(struct zz_tree *tree, size_t node_size);
 /**
  * Destroy tree 
  *
@@ -122,24 +111,6 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size,
  * @param tree a zz_tree
  */
 void zz_tree_destroy(struct zz_tree *tree);
-
-/**
- * Get token name for token, or __NULL__ if nonexistent
- *
- * @memberof zz_tree
- * @param tree a zz_tree
- * @param tok a valid token for _tree_
- * @return name of _tok_, or __NULL__
- */
-const char *zz_tree_token_name(struct zz_tree *tree, int tok);
-/**
- * Get token name for node 
- *
- * @memberof zz_node
- * @param node a zz_node
- * @return name of the token of _node_, or __NULL__
- */
-const char *zz_token_name(struct zz_node *node);
 
 /**
  * Copy a node 
@@ -168,7 +139,7 @@ struct zz_node *zz_copy_recursive(struct zz_tree *tree, struct zz_node *node);
  * @param tok a token
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_null(struct zz_tree *tree, int tok);
+struct zz_node *zz_null(struct zz_tree *tree, const char *tok);
 /**
  * Create a node with int data 
  *
@@ -178,7 +149,7 @@ struct zz_node *zz_null(struct zz_tree *tree, int tok);
  * @param val an integer
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_int(struct zz_tree *tree, int tok, int val);
+struct zz_node *zz_int(struct zz_tree *tree, const char *tok, int val);
 /**
  * Create a node with unsigned int data 
  *
@@ -188,7 +159,7 @@ struct zz_node *zz_int(struct zz_tree *tree, int tok, int val);
  * @param val an unsigned integer
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_uint(struct zz_tree *tree, int tok, unsigned int val);
+struct zz_node *zz_uint(struct zz_tree *tree, const char *tok, unsigned int val);
 /**
  * Create a node with double data 
  *
@@ -198,7 +169,7 @@ struct zz_node *zz_uint(struct zz_tree *tree, int tok, unsigned int val);
  * @param val a floating point number
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_double(struct zz_tree *tree, int tok, double val);
+struct zz_node *zz_double(struct zz_tree *tree, const char *tok, double val);
 /**
  * Create a node with string data 
  *
@@ -208,7 +179,7 @@ struct zz_node *zz_double(struct zz_tree *tree, int tok, double val);
  * @param val a __NULL_ terminated string
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_string(struct zz_tree *tree, int tok, const char *val);
+struct zz_node *zz_string(struct zz_tree *tree, const char *tok, const char *val);
 /**
  * Create a node with user-managed data data 
  *
@@ -218,7 +189,7 @@ struct zz_node *zz_string(struct zz_tree *tree, int tok, const char *val);
  * @param val a pointer
  * @return a new zz_node allocated by _tree_
  */
-struct zz_node *zz_pointer(struct zz_tree *tree, int tok, void *val);
+struct zz_node *zz_pointer(struct zz_tree *tree, const char *tok, void *val);
 
 /**
  * Initialize a list
@@ -604,10 +575,13 @@ void zz_print_list(struct zz_list *list, FILE * f);
  *
  * @memberof zz_node
  * @param node a zz_node
- * @param tok a token
+ * @param parent the parent of node
+ * @param token a token
+ * @param error function to report the error
  * @return 0 on success, -1 on failure
  */
-int zz_match(struct zz_node *node, int tok);
+int zz_match(struct zz_node *node, struct zz_node *parent, const char *token,
+		void(*error)(void *, const char *));
 /**
  * Match end of list
  *
@@ -615,13 +589,14 @@ int zz_match(struct zz_node *node, int tok);
  *
  * @memberof zz_node
  * @param node a zz_node
+ * @param parent the parent of node
+ * @param error function to report the error
  * @return 0 on success, -1 on failure
  */
-int zz_match_end(struct zz_node *node, struct zz_list *list);
+int zz_match_end(struct zz_node *node, struct zz_node *parent,
+		void(*error)(void *, const char *));
 /**
  * Print error from node
- *
- * Shorthand for node->tree->error(node, msg)
  *
  * @memberof zz_node
  * @param node a zz_node

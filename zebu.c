@@ -69,7 +69,6 @@ static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 	node = zz_alloc(tree, tree->node_size);
 	zz_list_init(&node->siblings);
 	zz_list_init(&node->children);
-	node->tree = tree;
 	return node;
 }
 
@@ -99,12 +98,9 @@ static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 	return data[i];
 }
 
-void zz_tree_init(struct zz_tree *tree, size_t node_size,
-		const char *const *token_names, size_t num_tokens)
+void zz_tree_init(struct zz_tree *tree, size_t node_size)
 {
 	assert(node_size >= sizeof(struct zz_node));
-	tree->token_names = token_names;
-	tree->num_tokens = num_tokens;
 	tree->node_size = node_size;
 	tree->blobs = NULL;
 	tree->strings = calloc(1, sizeof(struct zz_string_index));
@@ -125,19 +121,7 @@ void zz_tree_destroy(struct zz_tree * tree)
 	free(tree->strings);
 }
 
-const char *zz_tree_token_name(struct zz_tree * tree, int tok)
-{
-	if ((size_t)tok >= tree->num_tokens)
-		return NULL;
-	return tree->token_names[tok];
-}
-
-const char *zz_token_name(struct zz_node * node)
-{
-	return zz_tree_token_name(node->tree, node->token);
-}
-
-struct zz_node * zz_null(struct zz_tree * tree, int token)
+struct zz_node * zz_null(struct zz_tree * tree, const char *token)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -146,7 +130,7 @@ struct zz_node * zz_null(struct zz_tree * tree, int token)
 	return node;
 }
 
-struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
+struct zz_node *zz_int(struct zz_tree *tree, const char *token, int data)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -156,7 +140,7 @@ struct zz_node *zz_int(struct zz_tree *tree, int token, int data)
 	return node;
 }
 
-struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
+struct zz_node *zz_uint(struct zz_tree *tree, const char *token, unsigned int data)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -166,7 +150,7 @@ struct zz_node *zz_uint(struct zz_tree *tree, int token, unsigned int data)
 	return node;
 }
 
-struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
+struct zz_node *zz_double(struct zz_tree *tree, const char *token, double data)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -176,7 +160,7 @@ struct zz_node *zz_double(struct zz_tree *tree, int token, double data)
 	return node;
 }
 
-struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
+struct zz_node *zz_string(struct zz_tree *tree, const char *token, const char *data)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -186,7 +170,7 @@ struct zz_node *zz_string(struct zz_tree *tree, int token, const char *data)
 	return node;
 }
 
-struct zz_node *zz_pointer(struct zz_tree *tree, int token, void *data)
+struct zz_node *zz_pointer(struct zz_tree *tree, const char *token, void *data)
 {
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
@@ -233,7 +217,7 @@ struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)
 
 void zz_print_node(struct zz_node *node, FILE * f)
 {
-	fprintf(f, "[%s", zz_token_name(node));
+	fprintf(f, "[%s", node->token);
 
 	switch (node->type) {
 	case ZZ_NULL:
@@ -268,27 +252,28 @@ void zz_print_list(struct zz_list *list, FILE * f)
 	}
 }
 
-int zz_match(struct zz_node *node, int tok)
+int zz_match(struct zz_node *node, struct zz_node *parent, const char *token,
+		void(*error)(void *, const char *))
 {
 	char buf[1024];
 
-	if (node == NULL) {
-		zz_node_error(node, "unexpected end of node list");
+	if (node == (void *)&parent->children) {
+		error(node, "unexpected end of node list");
 		return -1;
-	} else if (node->token != tok) {
+	} else if (node->token != token) {
 		snprintf(buf, sizeof(buf), "expected %s, got %s",
-			zz_tree_token_name(node->tree, tok),
-			zz_token_name(node));
-		zz_node_error(node, buf);
+			node->token, token);
+		error(node, buf);
 		return -1;
 	}
 	return 0;
 }
 
-int zz_match_end(struct zz_node *node, struct zz_list *list)
+int zz_match_end(struct zz_node *node, struct zz_node *parent,
+		void(*error)(void *, const char *))
 {
-	if (node != (void *)list) {
-		node->tree->error(node, "unexpected node");
+	if (node != (void *)&parent->children) {
+		error(node, "unexpected node");
 		return -1;
 	}
 	return 0;
@@ -296,7 +281,7 @@ int zz_match_end(struct zz_node *node, struct zz_list *list)
 
 void zz_node_error(struct zz_node *node, const char *msg)
 {
-	node->tree->error(node, msg);
+	fprintf(stderr, "%s\n", msg);
 }
 
 void zz_error(const char *msg, const char *file, size_t first_line,
