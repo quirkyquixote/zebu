@@ -314,26 +314,20 @@ static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
 /**
  * Insert nodes before prev
  *
- * The nodes to be inserted should be linked in a single loop with _list_
- * being the first one, _list->prev_ the last, and no sentinel node.
- *
  * @memberof zz_list
  * @param prev a node in a list
- * @param list nodes to be inserted
+ * @param list nodes sentinel node of a list
  */
 static inline void zz_splice(struct zz_list *next, struct zz_list *list)
 {
 	struct zz_list *prev = next->prev;
-	list->prev->next = next;
+	prev->next = list->next;
 	next->prev = list->prev;
-	prev->next = list;
-	list->prev = prev;
+	list->prev->next = next;
+	list->next->prev = prev;
 }
 /**
  * Append nodes to a list
- *
- * The nodes to be inserted should be linked in a single loop with _nodes_
- * being the first one, _nodes->prev_ the last, and no sentinel node.
  *
  * @memberof zz_list
  * @param list sentinel node of a list
@@ -345,9 +339,6 @@ static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
 }
 /**
  * Prepend nodes to a list
- *
- * The nodes to be inserted should be linked in a single loop with _nodes_
- * being the first one, _nodes->prev_ the last, and no sentinel node.
  *
  * @memberof zz_list
  * @param list sentinel node of a list
