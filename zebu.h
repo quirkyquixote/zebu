@@ -190,6 +190,57 @@ struct zz_node *zz_string(struct zz_tree *tree, const char *tok, const char *val
  * @return a new zz_node allocated by _tree_
  */
 struct zz_node *zz_pointer(struct zz_tree *tree, const char *tok, void *val);
+/**
+ * Set node data to null
+ *
+ * @memberof zz_tree
+ * @param node a zz_node
+ */
+void zz_null_init(struct zz_tree *tree, struct zz_node *node);
+/**
+ * Set node data to integer
+ *
+ * @memberof zz_tree
+ * @param node a zz_node
+ * @param val new value for _node_
+ */
+void zz_int_init(struct zz_tree *tree, struct zz_node *node, int val);
+/**
+ * Set node data to unsigned integer
+ *
+ * @memberof zz_tree
+ * @param tree a zz_tree
+ * @param node a zz_node
+ * @param val new value for _node_
+ */
+void zz_uint_init(struct zz_tree *tree, struct zz_node *node, unsigned int val);
+/**
+ * Set node data to double
+ *
+ * @memberof zz_tree
+ * @param tree a zz_tree
+ * @param node a zz_node
+ * @param val new value for _node_
+ */
+void zz_double_init(struct zz_tree *tree, struct zz_node *node, double val);
+/**
+ * Set node data to string
+ *
+ * @memberof zz_tree
+ * @param tree a zz_tree
+ * @param node a zz_node
+ * @param val new value for _node_
+ */
+void zz_string_init(struct zz_tree *tree, struct zz_node *node, const char *val);
+/**
+ * Set node data to pointer
+ *
+ * @memberof zz_tree
+ * @param tree a zz_tree
+ * @param node a zz_node
+ * @param val new value for _node_
+ */
+void zz_pointer_init(struct zz_tree *tree, struct zz_node *node, void *val);
 
 /**
  * Initialize a list

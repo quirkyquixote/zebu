@@ -135,8 +135,7 @@ struct zz_node *zz_int(struct zz_tree *tree, const char *token, int data)
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
 	node->token = token;
-	node->type = ZZ_INT;
-	node->data.int_val = data;
+	zz_int_init(tree, node, data);
 	return node;
 }
 
@@ -145,8 +144,7 @@ struct zz_node *zz_uint(struct zz_tree *tree, const char *token, unsigned int da
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
 	node->token = token;
-	node->type = ZZ_UINT;
-	node->data.uint_val = data;
+	zz_uint_init(tree, node, data);
 	return node;
 }
 
@@ -155,8 +153,7 @@ struct zz_node *zz_double(struct zz_tree *tree, const char *token, double data)
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
 	node->token = token;
-	node->type = ZZ_DOUBLE;
-	node->data.double_val = data;
+	zz_double_init(tree, node, data);
 	return node;
 }
 
@@ -165,8 +162,7 @@ struct zz_node *zz_string(struct zz_tree *tree, const char *token, const char *d
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
 	node->token = token;
-	node->type = ZZ_STRING;
-	node->data.str_val = zz_alloc_string(tree, data);
+	zz_string_init(tree, node, data);
 	return node;
 }
 
@@ -175,9 +171,43 @@ struct zz_node *zz_pointer(struct zz_tree *tree, const char *token, void *data)
 	struct zz_node *node;
 	node = zz_alloc_node(tree);
 	node->token = token;
-	node->type = ZZ_POINTER;
-	node->data.ptr_val = data;
+	zz_pointer_init(tree, node, data);
 	return node;
+}
+
+void zz_null_init(struct zz_tree *tree, struct zz_node *node)
+{
+	node->type = ZZ_NULL;
+}
+
+void zz_int_init(struct zz_tree *tree, struct zz_node *node, int val)
+{
+	node->type = ZZ_INT;
+	node->data.int_val = val;
+}
+
+void zz_uint_init(struct zz_tree *tree, struct zz_node *node, unsigned int val)
+{
+	node->type = ZZ_UINT;
+	node->data.uint_val = val;
+}
+
+void zz_double_init(struct zz_tree *tree, struct zz_node *node, double val)
+{
+	node->type = ZZ_DOUBLE;
+	node->data.double_val = val;
+}
+
+void zz_string_init(struct zz_tree *tree, struct zz_node *node, const char *val)
+{
+	node->type = ZZ_STRING;
+	node->data.str_val = zz_alloc_string(tree, val);
+}
+
+void zz_pointer_init(struct zz_tree *tree, struct zz_node *node, void *val)
+{
+	node->type = ZZ_POINTER;
+	node->data.ptr_val = val;
 }
 
 struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
