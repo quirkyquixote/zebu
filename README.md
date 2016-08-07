@@ -27,10 +27,9 @@ API; the bullet points are:
 The zz_tree struct manages a full tree, including resource allocation.
 Individual nodes are of type zz_node.
 
-Trees may take a list of token names, provided as a string array: the position
-of each string in the array refers to the token field of zz_node and is used to
-format a number of error messages, mostly through the zz_match and zz_match_end
-functions.
+Node "tokens" are const strings; specifically, all nodes of the same type use
+the same string as token, that doubles as the token name when printing messages
+or formatting trees.
 
 All nodes in the AST may hold data of type int, unsigned int, double, char\*
 (automatically allocated by the tree), or void\* (the referenced memory must be
