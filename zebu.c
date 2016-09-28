@@ -224,7 +224,7 @@ struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 	case ZZ_STRING:
 		return zz_string(tree, node->token, node->data.str_val);
 	case ZZ_POINTER:
-		return zz_string(tree, node->token, node->data.ptr_val);
+		return zz_pointer(tree, node->token, node->data.ptr_val);
 	}
 	return NULL;
 }
