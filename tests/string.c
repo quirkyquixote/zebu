@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	assert(strcmp(zz_to_string(n3), "foobar") == 0);
 	assert(strcmp(zz_to_string(n4), "foo") == 0);
 
-	assert(zz_to_string(n1) == zz_to_string(n4));
+	assert(strcmp(zz_to_string(n1), zz_to_string(n4)) == 0);
 
 	exit(EXIT_SUCCESS);
 }
