@@ -98,9 +98,34 @@ int allocate_huge_string(void)
 	return 0;
 }
 
+/* Try allocating many nodes at once */
+int allocate_many_strings(void)
+{
+	struct zz_tree tree;
+	size_t len;
+	struct zz_node **nodes;
+	size_t i;
+	char buf[16];
+
+	zz_tree_init(&tree, sizeof(struct zz_node));
+	len = 1000000;
+	nodes = calloc(len, sizeof(*nodes));
+	for (i = 0; i < len; ++i) {
+		snprintf(buf, sizeof(buf), "%d", i);
+		nodes[i] = zz_string(&tree, TOK_BAZ, buf);
+	}
+	for (i = 0; i < len; ++i) {
+		snprintf(buf, sizeof(buf), "%d", i);
+		assert(strcmp(zz_to_string(nodes[i]), buf) == 0);
+	}
+	zz_tree_destroy(&tree);
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	allocate_beyond_blob();
 	allocate_huge_string();
+	allocate_many_strings();
 }
 

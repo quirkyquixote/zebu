@@ -49,5 +49,5 @@ string: string.o ../zebu.o
 tree: tree.o ../zebu.o
 
 test_%: %
-	@$(call colorecho,TEST $<); ./$<
+	@echo TEST $<; ./$<
 

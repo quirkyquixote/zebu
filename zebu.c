@@ -23,19 +23,25 @@ struct zz_blob {
 };
 
 /*
- * A list of all strings held by the tree
+ * AA Tree to provide a dictionary of strings allocated by an AST.
  *
- * This is basically a way to prevent the tree from allocating the same string
- * twice.
+ * An AA Tree is a simplified form of red-black tree that implements a balanced
+ * binary tree. We use an even more simplified form of it to keep an easily
+ * accessible index of all strings belonging to an AST.
  *
- * Again, this is a header that goes before the actual string index, that has
- * enough bytes to hold alloc strings.
+ * This implementation lacks specialized lookup and deletion routines: lookup
+ * is provided by the insert method--attempting to insert an already existing
+ * string will return the already allocated data--, and elements can't be
+ * deleted individually, but are destroyed all at once with the AST they belong
+ * to.
  */
-struct zz_string_index {
-	/* Allocated memory */
-	size_t alloc;
-	/* Used memory */
-	size_t used;
+struct zz_dict {
+	/* Left and right children */
+	struct zz_dict *left, *right;
+	/* Level of this node */
+	size_t level;
+	/* Data attached to this node */
+	char data[];
 };
 
 static void *zz_alloc_in_blobs(struct zz_blob **blob, size_t nbytes)
@@ -84,6 +90,70 @@ static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
 	return (char *)(blob + 1);
 }
 
+static struct zz_dict *zz_dict_skew(struct zz_dict *t)
+{
+	struct zz_dict *l;
+
+	if (t == NULL) {
+		return NULL;
+	} else if (t->left == NULL) {
+		return t;
+	} else if (t->left->level == t->level) {
+		l = t->left;
+		t->left = l->right;
+		l->right = t;
+		return l;
+	} else {
+		return t;
+	}
+}
+
+static struct zz_dict *zz_dict_split(struct zz_dict *t)
+{
+	struct zz_dict *r;
+
+	if (t == NULL) {
+		return NULL;
+	} else if (t->right == NULL || t->right->right == NULL) {
+		return t;
+	} else if (t->level == t->right->right->level) {
+		r = t->right;
+		t->right = r->left;
+		r->left = t;
+		++r->level;
+		return r;
+	} else {
+		return t;
+	}
+}
+
+static struct zz_dict *zz_dict_insert(struct zz_tree *tree, struct zz_dict *t,
+		const char *data, const char **rval)
+{
+	int cmp;
+
+	if (t == NULL) {
+		t = zz_alloc(tree, sizeof(*t) + strlen(data) + 1);
+		t->level = 1;
+		strcpy(t->data, data);
+		if (rval != NULL)
+			*rval = t->data;
+		return t;
+	}
+	cmp = strcmp(data, t->data);
+	if (cmp < 0) {
+		t->left = zz_dict_insert(tree, t->left, data, rval);
+	} else if (cmp > 0) {
+		t->right = zz_dict_insert(tree, t->right, data, rval);
+	} else {
+		if (rval != NULL)
+			*rval = t->data;
+	}
+	t = zz_dict_skew(t);
+	t = zz_dict_split(t);
+	return t;
+}
+
 static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 {
 	struct zz_node *node;
@@ -96,11 +166,10 @@ static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 
 static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 {
-	char *data;
+	const char *rval;
 
-	data = zz_alloc(tree, strlen(str) + 1);
-	strcpy(data, str);
-	return data;
+	tree->strings = zz_dict_insert(tree, tree->strings, str, &rval);
+	return rval;
 }
 
 void zz_tree_init(struct zz_tree *tree, size_t node_size)
@@ -108,7 +177,7 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size)
 	assert(node_size >= sizeof(struct zz_node));
 	tree->node_size = node_size;
 	tree->blobs = calloc(9, sizeof(struct zz_blob *));
-	tree->strings = calloc(1, sizeof(struct zz_string_index));
+	tree->strings = NULL;
 }
 
 void zz_tree_destroy(struct zz_tree * tree)
@@ -127,7 +196,6 @@ void zz_tree_destroy(struct zz_tree * tree)
 	}
 
 	free(tree->blobs);
-	free(tree->strings);
 }
 
 struct zz_node * zz_null(struct zz_tree * tree, const char *token)
