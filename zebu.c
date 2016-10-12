@@ -7,22 +7,6 @@
 #include <string.h>
 
 /*
- * A chunk of memory for a tree
- *
- * Just a little construct that allows us to allocate memory in chunks and only
- * deallocate it all at once, when the tree is destroyed.
- *
- * This is a header that goes before the actual memory blob, that is at least
- * ZZ_BLOB_SIZE bytes long.
- */
-struct zz_blob {
-	/* Next blob in list */
-	struct zz_blob *next;
-	/* Amount of memory used */
-	size_t used;
-};
-
-/*
  * AA Tree to provide a dictionary of strings allocated by an AST.
  *
  * An AA Tree is a simplified form of red-black tree that implements a balanced
@@ -43,52 +27,6 @@ struct zz_dict {
 	/* Data attached to this node */
 	char data[];
 };
-
-static void *zz_alloc_in_blobs(struct zz_blob **blob, size_t nbytes)
-{
-	struct zz_blob *tmp;
-	void *ptr;
-
-	if (*blob == NULL || (*blob)->used + nbytes > ZZ_BLOB_SIZE) {
-		tmp = calloc(1, sizeof(*tmp) + ZZ_BLOB_SIZE);
-		tmp->next = *blob;
-		*blob = tmp;
-	}
-	ptr = (char *)(*blob + 1) + (*blob)->used;
-	(*blob)->used += nbytes;
-	return ptr;
-}
-
-static void *zz_alloc(struct zz_tree *tree, size_t nbytes)
-{
-	struct zz_blob **blobs;
-	struct zz_blob *blob;
-
-	blobs = tree->blobs;
-
-	if (nbytes <= 8)
-		return zz_alloc_in_blobs(&blobs[0], 8);
-	else if (nbytes <= 16)
-		return zz_alloc_in_blobs(&blobs[1], 16);
-	else if (nbytes <= 32)
-		return zz_alloc_in_blobs(&blobs[2], 32);
-	else if (nbytes <= 64)
-		return zz_alloc_in_blobs(&blobs[3], 64);
-	else if (nbytes <= 128)
-		return zz_alloc_in_blobs(&blobs[4], 128);
-	else if (nbytes <= 256)
-		return zz_alloc_in_blobs(&blobs[5], 256);
-	else if (nbytes <= 512)
-		return zz_alloc_in_blobs(&blobs[6], 512);
-	else if (nbytes <= 1024)
-		return zz_alloc_in_blobs(&blobs[7], 1024);
-
-	blob = calloc(1, sizeof(*blob) + nbytes);
-	blob->next = blobs[8];
-	blob->used = nbytes;
-	blobs[8] = blob;
-	return (char *)(blob + 1);
-}
 
 static struct zz_dict *zz_dict_skew(struct zz_dict *t)
 {
@@ -127,13 +65,13 @@ static struct zz_dict *zz_dict_split(struct zz_dict *t)
 	}
 }
 
-static struct zz_dict *zz_dict_insert(struct zz_tree *tree, struct zz_dict *t,
-		const char *data, const char **rval)
+static struct zz_dict *zz_dict_insert(struct zz_dict *t, const char *data,
+		const char **rval)
 {
 	int cmp;
 
 	if (t == NULL) {
-		t = zz_alloc(tree, sizeof(*t) + strlen(data) + 1);
+		t = calloc(1, sizeof(*t) + strlen(data) + 1);
 		t->level = 1;
 		strcpy(t->data, data);
 		if (rval != NULL)
@@ -142,9 +80,9 @@ static struct zz_dict *zz_dict_insert(struct zz_tree *tree, struct zz_dict *t,
 	}
 	cmp = strcmp(data, t->data);
 	if (cmp < 0) {
-		t->left = zz_dict_insert(tree, t->left, data, rval);
+		t->left = zz_dict_insert(t->left, data, rval);
 	} else if (cmp > 0) {
-		t->right = zz_dict_insert(tree, t->right, data, rval);
+		t->right = zz_dict_insert(t->right, data, rval);
 	} else {
 		if (rval != NULL)
 			*rval = t->data;
@@ -154,21 +92,30 @@ static struct zz_dict *zz_dict_insert(struct zz_tree *tree, struct zz_dict *t,
 	return t;
 }
 
+static void zz_dict_destroy(struct zz_dict *t)
+{
+	if (t != NULL) {
+		zz_dict_destroy(t->left);
+		zz_dict_destroy(t->right);
+		free(t);
+	}
+}
+
 static struct zz_node *zz_alloc_node(struct zz_tree *tree)
 {
 	struct zz_node *node;
-
-	node = zz_alloc(tree, tree->node_size);
+	node = calloc(1, tree->node_size);
+	node->next = tree->nodes;
 	zz_list_init(&node->siblings);
 	zz_list_init(&node->children);
+	tree->nodes = node;
 	return node;
 }
 
 static const char *zz_alloc_string(struct zz_tree *tree, const char *str)
 {
 	const char *rval;
-
-	tree->strings = zz_dict_insert(tree, tree->strings, str, &rval);
+	tree->strings = zz_dict_insert(tree->strings, str, &rval);
 	return rval;
 }
 
@@ -176,26 +123,19 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size)
 {
 	assert(node_size >= sizeof(struct zz_node));
 	tree->node_size = node_size;
-	tree->blobs = calloc(9, sizeof(struct zz_blob *));
+	tree->nodes = NULL;
 	tree->strings = NULL;
 }
 
 void zz_tree_destroy(struct zz_tree * tree)
 {
-	int i;
-	struct zz_blob *blob;
-	struct zz_blob *next;
-
-	for (i = 0; i < 9; ++i) {
-		blob = ((struct zz_blob **)tree->blobs)[i];
-		while (blob != NULL) {
-			next = blob->next;
-			free(blob);
-			blob = next;
-		}
+	struct zz_node *node;
+	struct zz_node *next;
+	for (node = tree->nodes; node != NULL; node = next) {
+		next = node->next;
+		free(node);
 	}
-
-	free(tree->blobs);
+	zz_dict_destroy(tree->strings);
 }
 
 struct zz_node * zz_null(struct zz_tree * tree, const char *token)

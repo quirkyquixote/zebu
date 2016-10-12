@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 
 #include "../zebu.h"
 
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
 	n5 = zz_string(&tree, FOO_STRING, "Hello, World!");
 	zz_append_child(n4, n5);
 
+	setvbuf(stdout, NULL, _IONBF, 0);
 	zz_print(n0, stdout);
 	fputc('\n', stdout);
 	exit(EXIT_SUCCESS);

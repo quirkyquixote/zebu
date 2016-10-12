@@ -56,25 +56,6 @@ static const char *TOK_FOO = "foo";
 static const char *TOK_BAR = "bar";
 static const char *TOK_BAZ = "baz";
 
-/* Try allocating until surpassing the size of a blob */
-int allocate_beyond_blob(void)
-{
-	struct zz_tree tree;
-	size_t len;
-	struct zz_node **nodes;
-	size_t i;
-
-	zz_tree_init(&tree, sizeof(struct zz_node));
-	len = ZZ_BLOB_SIZE / sizeof(*nodes) + 10;
-	nodes = calloc(len, sizeof(*nodes));
-	for (i = 0; i < len; ++i)
-		nodes[i] = zz_uint(&tree, TOK_BAZ, i);
-	for (i = 0; i < len; ++i)
-		assert(zz_to_uint(nodes[i]) == i);
-	zz_tree_destroy(&tree);
-	return 0;
-}
-
 /* Try allocating a string bigger than the size of a blob */
 int allocate_huge_string(void)
 {
@@ -124,7 +105,6 @@ int allocate_many_strings(void)
 
 int main(int argc, char *argv[])
 {
-	allocate_beyond_blob();
 	allocate_huge_string();
 	allocate_many_strings();
 }

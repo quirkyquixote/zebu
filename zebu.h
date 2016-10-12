@@ -7,11 +7,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/*
- * Minimum amount of memory to allocate at once
- */
-#define ZZ_BLOB_SIZE 1024
-
 /* 
  * Data types that may be held by a zz_node
  */
@@ -54,7 +49,7 @@ union zz_node_data {
  * Node in an Abstract Syntax Tree 
  */
 struct zz_node {
-	/* Siblings */
+	/* Siblings; this must be the first field */
 	struct zz_list siblings;
 	/* Children */
 	struct zz_list children;
@@ -62,6 +57,8 @@ struct zz_node {
 	const char *token;
 	/* Type of data held by the node */
 	int type;
+	/* Next in list of all nodes allocated by the tree */
+	struct zz_node *next;
 	/* Data that depends on the node type */
 	union zz_node_data data;
 };
@@ -77,8 +74,8 @@ struct zz_node {
 struct zz_tree {
 	/* Size of each node */
 	size_t node_size;
-	/* All memory managed by this tree */
-	void *blobs;
+	/* All nodes managed by this tree */
+	struct zz_node *nodes;
 	/* Index of all strings managed by the tree */
 	void *strings;
 };
