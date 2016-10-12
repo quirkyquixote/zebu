@@ -31,20 +31,5 @@ clean-test:
 .PHONY: realclean
 realclean: clean clean-test
 
-.PHONY: html
-html: index.html
-
-.PHONY: pdf
-pdf: index.pdf
-
-index.html: index.asc zebu.asc
-	$(QUIET_GEN)asciidoctor index.asc
-
-index.pdf: index.asc zebu.asc
-	$(QUIET_GEN)asciidoctor-pdf index.asc
-
-zebu.asc: zebu.h generate-apidoc
-	$(QUIET_GEN)./generate-apidoc zebu.h > zebu.asc
-
 libzebu.so: $(OBJECTS)
 
