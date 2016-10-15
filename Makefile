@@ -29,7 +29,8 @@ clean-test:
 	@make -C tests $@
 
 .PHONY: realclean
-realclean: clean clean-test
+realclean: 
+	git clean -fdx
 
 libzebu.so: $(OBJECTS)
 
