@@ -1,0 +1,1 @@
+[func [type "int"] [ident "main"] [arglist [arg [type "int"] [ident "argc"]] [arg [pointer [pointer [type "int"]]] [ident "argc"]]] [body [call [ident "printf"] [arglist [arg [string "Hello, World!"]]]]]]

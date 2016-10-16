@@ -1,0 +1,3 @@
+error.c:9: prontf is not a function
+	prontf("Hello, world!\n");
+	^^^^^^

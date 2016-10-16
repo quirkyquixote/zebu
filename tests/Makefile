@@ -1,43 +1,29 @@
 
 include ../config.mk
 
-OBJECTS += alloc.o
-OBJECTS += build.o
-OBJECTS += error.o
-OBJECTS += list.o
-OBJECTS += location.o
-OBJECTS += print.o
-OBJECTS += string.o
-OBJECTS += tree.o
+OBJS += alloc.o
+OBJS += build.o
+OBJS += error.o
+OBJS += list.o
+OBJS += location.o
+OBJS += print.o
+OBJS += string.o
+OBJS += tree.o
 
-PROGRAMS += alloc
-PROGRAMS += build
-PROGRAMS += error
-PROGRAMS += list
-PROGRAMS += location
-PROGRAMS += print
-PROGRAMS += string
-PROGRAMS += tree
+PROGRAMS = $(OBJS:.o:)
+DEPS = $(OBJS:.o=.d)
+LOGS = $(OBJS:.o=.log)
 
-TESTS += test_alloc
-TESTS += test_build
-TESTS += test_error
-TESTS += test_list
-TESTS += test_location
-TESTS += test_print
-TESTS += test_string
-TESTS += test_tree
+.PHONY: all
+all: $(LOGS)
+	@for i in $(LOGS); do echo TEST $$i; diff -q $$i $$i.gold; done
 
-.PHONY: build-test
-build-test: $(PROGRAMS)
-
-.PHONY: test
-test: $(TESTS)
-
-.PHONY: clean-test
-clean-test:
-	@$(RM) $(OBJECTS)
-	@$(RM) $(PROGRAMS)
+.PHONY: clean
+clean:
+	$(RM) $(PROGRAMS)
+	$(RM) $(OBJS)
+	$(RM) $(DEPS)
+	$(RM) $(LOGS)
 
 alloc: alloc.o ../zebu.o
 build: build.o ../zebu.o
@@ -48,6 +34,6 @@ print: print.o ../zebu.o
 string: string.o ../zebu.o
 tree: tree.o ../zebu.o
 
-test_%: %
-	@echo TEST $<; ./$<
+%.log: %
+	$(QUIET_GEN)./$< > $@ 2>&1
 

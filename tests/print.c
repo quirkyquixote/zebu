@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	zz_append_child(root, node);
 	node = zz_string(&tree, TOK_BAR, "314");
 	zz_append_child(root, node);
-	node = zz_pointer(&tree, TOK_BAZ, &tree);
+	node = zz_pointer(&tree, TOK_BAZ, NULL);
 	zz_append_child(root, node);
 
 	zz_print(root, stdout);
