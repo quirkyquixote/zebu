@@ -74,7 +74,7 @@ int allocate_huge_string(void)
 	assert(zz_to_string(n2) != str);
 	assert(strcmp(zz_to_string(n1), str) == 0);
 	assert(strcmp(zz_to_string(n2), str) == 0);
-	assert(strcmp(zz_to_string(n1), zz_to_string(n2)) == 0);
+	assert(zz_to_string(n1) == zz_to_string(n2));
 	zz_tree_destroy(&tree);
 	return 0;
 }
