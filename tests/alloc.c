@@ -92,11 +92,11 @@ int allocate_many_strings(void)
 	len = 1000000;
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i) {
-		snprintf(buf, sizeof(buf), "%d", i);
+		snprintf(buf, sizeof(buf), "%zu", i);
 		nodes[i] = zz_string(&tree, TOK_BAZ, buf);
 	}
 	for (i = 0; i < len; ++i) {
-		snprintf(buf, sizeof(buf), "%d", i);
+		snprintf(buf, sizeof(buf), "%zu", i);
 		assert(strcmp(zz_to_string(nodes[i]), buf) == 0);
 	}
 	zz_tree_destroy(&tree);
