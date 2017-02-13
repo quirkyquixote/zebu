@@ -293,10 +293,10 @@ void zz_error(const char *msg, const char *file, size_t first_line,
 	int r;
 
 	if (file == NULL) {
-		fprintf(stderr, "<file>:%d: %s\n", first_line, msg);
+		fprintf(stderr, "<file>:%zu: %s\n", first_line, msg);
 		return;
 	}
-	fprintf(stderr, "%s:%d: %s", file, first_line, msg);
+	fprintf(stderr, "%s:%zu: %s", file, first_line, msg);
 	f = fopen(file, "r");
 	if (f == NULL)
 		return;
