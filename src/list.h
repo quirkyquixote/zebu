@@ -24,12 +24,21 @@ struct zz_list {
  * sentinel node, it represents an empty list; if it is supposed to be a field
  * inside a node with data, it represents an unlinked node.
  *
- * @list a zz_list
+ * @list list a zz_list
  */
 static inline void zz_list_init(struct zz_list *list)
 {
 	list->next = list;
 	list->prev = list;
+}
+/*
+ * Return 1 if empty
+ *
+ * @list list a zz_list
+ */
+static inline int zz_empty(struct zz_list *list)
+{
+	return list->next == list;
 }
 /*
  * Unlinks a node from a list
