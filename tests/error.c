@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 #endif
 
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 int main(int argc, char *argv[])
 {

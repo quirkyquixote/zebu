@@ -1,5 +1,5 @@
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 struct node {
 	struct zz_list list;

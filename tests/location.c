@@ -1,7 +1,7 @@
 
 #include <assert.h>
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 struct node_with_location {
 	struct zz_node node;

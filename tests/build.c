@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 static const char *FOO_FUNC = "func";
 static const char *FOO_TYPE = "type";

@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 static const char REALLY_LONG_STRING[] =
 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel eros"

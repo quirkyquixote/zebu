@@ -1,7 +1,7 @@
 
 #include <assert.h>
 
-#include "../zebu.h"
+#include "../src/zebu.h"
 
 static const char *TOK_FOO = "foo";
 static const char *TOK_BAR = "bar";
