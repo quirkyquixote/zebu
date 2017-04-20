@@ -99,6 +99,36 @@ struct zz_node *zz_pointer(struct zz_tree *tree, const char *token, void *data)
 	return node;
 }
 
+void zz_set_null(struct zz_tree * tree, struct zz_node *node)
+{
+	node->type = ZZ_NULL;
+}
+
+void zz_set_int(struct zz_tree *tree, struct zz_node *node, int data)
+{
+	zz_int_init(node, data);
+}
+
+void zz_set_uint(struct zz_tree *tree, struct zz_node *node, unsigned int data)
+{
+	zz_uint_init(node, data);
+}
+
+void zz_set_double(struct zz_tree *tree, struct zz_node *node, double data)
+{
+	zz_double_init(node, data);
+}
+
+void zz_set_string(struct zz_tree *tree, struct zz_node *node, const char *data)
+{
+	zz_string_init(node, zz_alloc_string(tree, data));
+}
+
+void zz_set_pointer(struct zz_tree *tree, struct zz_node *node, void *data)
+{
+	zz_pointer_init(node, data);
+}
+
 struct zz_node * zz_copy(struct zz_tree * tree, struct zz_node * node)
 {
 	switch (node->type) {

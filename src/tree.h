@@ -106,4 +106,52 @@ struct zz_node *zz_string(struct zz_tree *tree, const char *tok, const char *val
  */
 struct zz_node *zz_pointer(struct zz_tree *tree, const char *tok, void *val);
 
+/*
+ * Reset node data to null
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ */
+void zz_set_null(struct zz_tree *tree, struct zz_node *node);
+/*
+ * Reset node data to int
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ * @data new data for node
+ */
+void zz_set_int(struct zz_tree *tree, struct zz_node *node, int data);
+/*
+ * Reset node data to uint
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ * @data new data for node
+ */
+void zz_set_uint(struct zz_tree *tree, struct zz_node *node, unsigned int data);
+/*
+ * Reset node data to double
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ * @data new data for node
+ */
+void zz_set_double(struct zz_tree *tree, struct zz_node *node, double data);
+/*
+ * Reset node data to string
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ * @data new data for node
+ */
+void zz_set_string(struct zz_tree *tree, struct zz_node *node, const char *data);
+/*
+ * Reset node data to pointer
+ *
+ * @tree a zz_tree
+ * @node a zz_node
+ * @data new data for node
+ */
+void zz_set_pointer(struct zz_tree *tree, struct zz_node *node, void *data);
+
 #endif         // ZEBU_TREE_H_
