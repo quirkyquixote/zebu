@@ -1,20 +1,15 @@
 
-include config.mk
-
-OBJECTS = zebu.o
-LIBS = libzebu.so
-INSTALL_LIBS = $(addprefix $(libdir)/,$(LIBS))
-
 .PHONY: all
-all: $(LIBS)
+all:
+	@make -C src all
 
 .PHONY: clean
 clean:
-	@$(RM) $(OBJECTS)
-	@$(RM) $(LIBS)
+	@make -C src clean
 
 .PHONY: install
-install: all $(INSTALL_LIBS)
+install:
+	@make -C src install
 
 .PHONY: test
 test: all
@@ -27,6 +22,4 @@ clean-test:
 .PHONY: realclean
 realclean: 
 	git clean -fdx
-
-libzebu.so: $(OBJECTS)
 

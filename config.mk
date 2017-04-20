@@ -36,8 +36,14 @@ QUIET_GEN = @echo GEN $@;
 lib%.so: %.o
 	$(QUIET_LINK)$(CC) -shared -Wl,-soname,$@.$(version) -o $@ $^
 
+lib%.a: %.o
+	$(QUIET_AR)$(AR) rcs $@ $^
+
 $(DESTDIR)$(libdir)/%.so: %.so
 	@$(INSTALL) -d $(@D)
 	$(QUIET_INSTALL)$(INSTALL) $< $@.$(version)
 	@cd $(DESTDIR)$(libdir) && ln -s -f $<.$(version) $<
 
+$(DESTDIR)$(libdir)/%.a: %.a
+	@$(INSTALL) -d $(@D)
+	$(QUIET_INSTALL)$(INSTALL) $< $@
