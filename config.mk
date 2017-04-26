@@ -17,8 +17,7 @@ LDFLAGS =
 ALL_CFLAGS = $(CPPFLAGS) $(CFLAGS)
 ALL_LDFLAGS = $(LDFLAGS)
 
-ALL_CFLAGS += -std=c99
-ALL_CFLAGS += -pedantic
+ALL_CFLAGS += -std=gnu99
 ALL_CFLAGS += -fPIC
 
 QUIET_CC = @echo CC $@;
