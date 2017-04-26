@@ -3,6 +3,7 @@
 *.so
 tests/alloc
 tests/build
+tests/data
 tests/error
 tests/list
 tests/location
