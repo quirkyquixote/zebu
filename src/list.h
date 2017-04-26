@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 /*
  * Doubly-linked list
@@ -36,7 +37,7 @@ static inline void zz_list_init(struct zz_list *list)
  *
  * @list list a zz_list
  */
-static inline int zz_empty(struct zz_list *list)
+static inline int zz_list_empty(struct zz_list *list)
 {
 	return list->next == list;
 }
@@ -48,7 +49,7 @@ static inline int zz_empty(struct zz_list *list)
  *
  * @node node to unlink
  */
-static inline void zz_unlink(struct zz_list *node)
+static inline void zz_list_unlink(struct zz_list *node)
 {
 	node->next->prev = node->prev;
 	node->prev->next = node->next;
@@ -62,7 +63,7 @@ static inline void zz_unlink(struct zz_list *node)
  * @prev a node in a list
  * @node node to be inserted.
  */
-static inline void zz_insert(struct zz_list *next, struct zz_list *node)
+static inline void zz_list_insert(struct zz_list *next, struct zz_list *node)
 {
 	struct zz_list *prev = next->prev;
 	next->prev = node;
@@ -76,9 +77,9 @@ static inline void zz_insert(struct zz_list *next, struct zz_list *node)
  * @list sentinel node of a list
  * @node node to be inserted
  */
-static inline void zz_append(struct zz_list *list, struct zz_list *node)
+static inline void zz_list_append(struct zz_list *list, struct zz_list *node)
 {
-	zz_insert(list, node);
+	zz_list_insert(list, node);
 }
 /*
  * Prepend a node to a list
@@ -86,9 +87,9 @@ static inline void zz_append(struct zz_list *list, struct zz_list *node)
  * @list sentinel node of a list
  * @node node to be inserted
  */
-static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
+static inline void zz_list_prepend(struct zz_list *list, struct zz_list *node)
 {
-	zz_insert(list->next, node);
+	zz_list_insert(list->next, node);
 }
 /*
  * Insert nodes before prev
@@ -96,7 +97,7 @@ static inline void zz_prepend(struct zz_list *list, struct zz_list *node)
  * @prev a node in a list
  * @list nodes sentinel node of a list
  */
-static inline void zz_splice(struct zz_list *next, struct zz_list *list)
+static inline void zz_list_splice(struct zz_list *next, struct zz_list *list)
 {
 	struct zz_list *prev = next->prev;
 	prev->next = list->next;
@@ -110,9 +111,9 @@ static inline void zz_splice(struct zz_list *next, struct zz_list *list)
  * @list sentinel node of a list
  * @nodes nodes to be inserted
  */
-static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
+static inline void zz_list_append_list(struct zz_list *list, struct zz_list *nodes)
 {
-	zz_splice(list, nodes);
+	zz_list_splice(list, nodes);
 }
 /*
  * Prepend nodes to a list
@@ -120,9 +121,9 @@ static inline void zz_append_list(struct zz_list *list, struct zz_list *nodes)
  * @list sentinel node of a list
  * @nodes nodes to be inserted
  */
-static inline void zz_prepend_list(struct zz_list *list, struct zz_list *nodes)
+static inline void zz_list_prepend_list(struct zz_list *list, struct zz_list *nodes)
 {
-	zz_splice(list->next, nodes);
+	zz_list_splice(list->next, nodes);
 }
 /*
  * Replace old_node by node
@@ -134,7 +135,7 @@ static inline void zz_prepend_list(struct zz_list *list, struct zz_list *nodes)
  * @old_node the node to be replaced
  * @node a node to replace old_node
  */
-static inline void zz_swap(struct zz_list *old_node, struct zz_list *node)
+static inline void zz_list_swap(struct zz_list *old_node, struct zz_list *node)
 {
 	struct zz_list *prev = old_node->prev;
 	struct zz_list *next = old_node->next;
@@ -146,13 +147,78 @@ static inline void zz_swap(struct zz_list *old_node, struct zz_list *node)
 /*
  * Iterate on a zz_list
  */
-#define zz_foreach(iter, list) \
-for ((iter) = (list)->next; (iter) != (list); (iter) = (iter)->next)
+#define zz_list_foreach(iter, list) \
+	for (iter = (list)->next; iter != (list); iter = iter->next)
 /*
  * Iterate on a zz_list, backwards
  */
-#define zz_reverse_foreach(iter, list) \
-for ((iter) = (list)->prev; (iter) != (list); (iter) = (iter)->prev)
+#define zz_list_reverse_foreach(iter, list) \
+	for (iter = (list)->prev; iter != (list); iter = iter->prev)
+/*
+ * Iterate on a zz_list; allows unlinking of nodes
+ */
+#define zz_list_foreach_safe(iter, next, list) \
+	for (iter = (list)->next; next = iter->next, iter != (list); iter = next)
+/*
+ * Iterate on a zz_list, backwards; allows unlinking of nodes
+ */
+#define zz_list_reverse_foreach_safe(iter, next, list) \
+	for (iter = (list)->prev; prev = iter->prev, iter != (list); iter = prev)
+/*
+ * Get struct for iterator
+ */
+#define zz_list_entry(iter, type, member) \
+	((type *)((char *)(iter) - offsetof(type, member)))
+/*
+ * Get struct for list head
+ */
+#define zz_list_first_entry(list, type, member) \
+	zz_list_entry((list)->next, type, member)
+/*
+ * Get struct for list tail
+ */
+#define zz_list_last_entry(list, type, member) \
+	zz_list_entry((list)->prev, type, member)
+/*
+ * Get next entry
+ */
+#define zz_list_next_entry(iter, member) \
+	zz_list_entry((iter)->member.next, typeof(*iter), member)
+/*
+ * Get next entry
+ */
+#define zz_list_prev_entry(iter, member) \
+	zz_list_entry((iter)->member.prev, typeof(*iter), member)
+/*
+ * Iterate on a zz_list
+ */
+#define zz_list_foreach_entry(iter, list, member) \
+	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
+			&iter->member != (list); \
+			iter = zz_list_next_entry(iter, member))
+/*
+ * Iterate on a zz_list, backwards
+ */
+#define zz_list_reverse_foreach_entry(iter, list, member) \
+	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
+			&iter->member != (list); \
+			iter = zz_list_prev_entry(iter, member))
+/*
+ * Iterate on a zz_list; allows unlinking of nodes
+ */
+#define zz_list_foreach_entry_safe(iter, next, list, member) \
+	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
+			next = zz_list_next_entry(iter, member), \
+			&iter->member != (list); \
+			iter = next)
+/*
+ * Iterate on a zz_list, backwards; allows unlinking of nodes
+ */
+#define zz_list_reverse_foreach_entry_safe(iter, next, list, member) \
+	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
+			prev = zz_list_prev_entry(iter, member), \
+			&iter->member != (list); \
+			iter = prev)
 
 /*
  * Return element by index (slow)
@@ -164,7 +230,7 @@ for ((iter) = (list)->prev; (iter) != (list); (iter) = (iter)->prev)
 static inline struct zz_list *zz_list_index(struct zz_list *list, size_t index)
 {
 	struct zz_list *iter;
-	zz_foreach(iter, list) {
+	zz_list_foreach(iter, list) {
 		if (index == 0)
 			return iter;
 		--index;
