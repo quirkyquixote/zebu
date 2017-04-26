@@ -67,14 +67,14 @@ int allocate_huge_string(void)
 	zz_tree_init(&tree, sizeof(struct zz_node));
 	str = REALLY_LONG_STRING;
 	len = strlen(REALLY_LONG_STRING);
-	n1 = zz_string(&tree, TOK_FOO, str);
-	n2 = zz_string(&tree, TOK_BAR, str);
+	n1 = zz_node(&tree, TOK_FOO, zz_string(&tree, str));
+	n2 = zz_node(&tree, TOK_BAR, zz_string(&tree, str));
 	assert(n1 != n2);
-	assert(zz_to_string(n1) != str);
-	assert(zz_to_string(n2) != str);
-	assert(strcmp(zz_to_string(n1), str) == 0);
-	assert(strcmp(zz_to_string(n2), str) == 0);
-	assert(zz_to_string(n1) == zz_to_string(n2));
+	assert(zz_get_string(n1) != str);
+	assert(zz_get_string(n2) != str);
+	assert(strcmp(zz_get_string(n1), str) == 0);
+	assert(strcmp(zz_get_string(n2), str) == 0);
+	assert(zz_get_string(n1) == zz_get_string(n2));
 	zz_tree_destroy(&tree);
 	return 0;
 }
@@ -93,11 +93,11 @@ int allocate_many_strings(void)
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i) {
 		snprintf(buf, sizeof(buf), "%zu", i);
-		nodes[i] = zz_string(&tree, TOK_BAZ, buf);
+		nodes[i] = zz_node(&tree, TOK_BAZ, zz_string(&tree, buf));
 	}
 	for (i = 0; i < len; ++i) {
 		snprintf(buf, sizeof(buf), "%zu", i);
-		assert(strcmp(zz_to_string(nodes[i]), buf) == 0);
+		assert(strcmp(zz_get_string(nodes[i]), buf) == 0);
 	}
 	zz_tree_destroy(&tree);
 	return 0;

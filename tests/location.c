@@ -31,17 +31,17 @@ int main(int argc, char *argv[])
 
 	zz_tree_init(&tree, sizeof(struct node_with_location));
 
-	n1 = zz_null(&tree, TOK_FOO);
+	n1 = zz_node(&tree, TOK_FOO, zz_null);
 	set_location(n1, 1);
-	n2 = zz_int(&tree, TOK_BAR, -314);
+	n2 = zz_node(&tree, TOK_BAR, zz_int(-314));
 	set_location(n2, 2);
-	n3 = zz_uint(&tree, TOK_BAZ, 314);
+	n3 = zz_node(&tree, TOK_BAZ, zz_uint(314));
 	set_location(n3, 3);
-	n4 = zz_double(&tree, TOK_FOO, 3.14);
+	n4 = zz_node(&tree, TOK_FOO, zz_double(0.5));
 	set_location(n4, 5);
-	n5 = zz_string(&tree, TOK_BAR, "314");
+	n5 = zz_node(&tree, TOK_BAR, zz_string(&tree, "314"));
 	set_location(n5, 8);
-	n6 = zz_pointer(&tree, TOK_BAZ, &tree);
+	n6 = zz_node(&tree, TOK_BAZ, zz_pointer(&tree));
 	set_location(n6, 13);
 
 	assert(get_location(n1) == 1);

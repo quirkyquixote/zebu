@@ -1,0 +1,1 @@
+[foo [bar] [baz -314] [bar 314] [baz 0.500000] [bar "314"] [baz (nil)]]

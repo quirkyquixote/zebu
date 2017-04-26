@@ -15,20 +15,20 @@ int main(int argc, char *argv[])
 
 	zz_tree_init(&tree, sizeof(struct zz_node));
 
-	root = zz_null(&tree, TOK_FOO);
+	root = zz_node(&tree, TOK_FOO, zz_null);
 	assert(root != NULL);
 
-	node = zz_null(&tree, TOK_BAR);
+	node = zz_node(&tree, TOK_BAR, zz_null);
 	zz_append_child(root, node);
-	node = zz_int(&tree, TOK_BAZ, -314);
+	node = zz_node(&tree, TOK_BAZ, zz_int(-314));
 	zz_append_child(root, node);
-	node = zz_uint(&tree, TOK_BAR, 314);
+	node = zz_node(&tree, TOK_BAR, zz_uint(314));
 	zz_append_child(root, node);
-	node = zz_double(&tree, TOK_BAZ, 3.14);
+	node = zz_node(&tree, TOK_BAZ, zz_double(0.5));
 	zz_append_child(root, node);
-	node = zz_string(&tree, TOK_BAR, "314");
+	node = zz_node(&tree, TOK_BAR, zz_string(&tree, "314"));
 	zz_append_child(root, node);
-	node = zz_pointer(&tree, TOK_BAZ, NULL);
+	node = zz_node(&tree, TOK_BAZ, zz_pointer(NULL));
 	zz_append_child(root, node);
 
 	zz_print(root, stdout);

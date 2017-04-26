@@ -4,32 +4,34 @@ include ../config.mk
 DIFF = diff -q --ignore-blank-lines --ignore-space-change
 MEMCHECK = valgrind -q --tool=memcheck
 
-OBJS += alloc.o
-OBJS += build.o
-OBJS += error.o
-OBJS += list.o
-OBJS += location.o
-OBJS += print.o
-OBJS += string.o
-OBJS += tree.o
+objs += alloc.o
+objs += build.o
+objs += data.o
+objs += error.o
+objs += list.o
+objs += location.o
+objs += print.o
+objs += string.o
+objs += tree.o
 
-PROGRAMS = $(OBJS:.o:)
-DEPS = $(OBJS:.o=.d)
-LOGS = $(OBJS:.o=.log)
+bins = $(objs:.o:)
+deps = $(objs:.o=.d)
+logs = $(objs:.o=.log)
 
 .PHONY: all
-all: $(LOGS)
-	@for i in $(LOGS); do echo TEST $$i; $(DIFF) $$i $$i.gold; done
+all: $(logs)
+	@for i in $(bins); do echo TEST $$i; $(DIFF) $$i.log $$i.gold; done
 
 .PHONY: clean
 clean:
-	$(RM) $(PROGRAMS)
-	$(RM) $(OBJS)
-	$(RM) $(DEPS)
-	$(RM) $(LOGS)
+	$(RM) $(bins)
+	$(RM) $(objs)
+	$(RM) $(deps)
+	$(RM) $(logs)
 
 alloc: alloc.o ../src/libzebu.a
 build: build.o ../src/libzebu.a
+data: data.o ../src/libzebu.a
 error: error.o ../src/libzebu.a
 list: list.o ../src/libzebu.a
 location: location.o ../src/libzebu.a
@@ -46,3 +48,4 @@ tree: tree.o ../src/libzebu.a
 .PHONY: make-always
 make-always:
 
+-include $(deps)

@@ -16,17 +16,17 @@ int main(int argc, char *argv[])
 
 	zz_tree_init(&tree, sizeof(struct zz_node));
 
-	n1 = zz_string(&tree, TOK_FOO, "foo");
-	n2 = zz_string(&tree, TOK_FOO, "bar");
-	n3 = zz_string(&tree, TOK_FOO, "foobar");
-	n4 = zz_string(&tree, TOK_FOO, "foo");
+	n1 = zz_node(&tree, TOK_FOO, zz_string(&tree, "foo"));
+	n2 = zz_node(&tree, TOK_FOO, zz_string(&tree, "bar"));
+	n3 = zz_node(&tree, TOK_FOO, zz_string(&tree, "foobar"));
+	n4 = zz_node(&tree, TOK_FOO, zz_string(&tree, "foo"));
 
-	assert(strcmp(zz_to_string(n1), "foo") == 0);
-	assert(strcmp(zz_to_string(n2), "bar") == 0);
-	assert(strcmp(zz_to_string(n3), "foobar") == 0);
-	assert(strcmp(zz_to_string(n4), "foo") == 0);
+	assert(strcmp(zz_get_string(n1), "foo") == 0);
+	assert(strcmp(zz_get_string(n2), "bar") == 0);
+	assert(strcmp(zz_get_string(n3), "foobar") == 0);
+	assert(strcmp(zz_get_string(n4), "foo") == 0);
 
-	assert(strcmp(zz_to_string(n1), zz_to_string(n4)) == 0);
+	assert(strcmp(zz_get_string(n1), zz_get_string(n4)) == 0);
 
 	exit(EXIT_SUCCESS);
 }
