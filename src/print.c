@@ -8,18 +8,27 @@ void zz_print(struct zz_node *node, FILE * f)
 
 	fprintf(f, "[%s", node->token);
 
-	if (node->type == ZZ_INT)
-		fprintf(f, " %d", node->data.int_val);
-	else if (node->type == ZZ_UINT)
-		fprintf(f, " %u", node->data.uint_val);
-	else if (node->type == ZZ_DOUBLE)
-		fprintf(f, " %f", node->data.double_val);
-	else if (node->type == ZZ_STRING)
-		fprintf(f, " \"%s\"", node->data.str_val);
-	else if (node->type == ZZ_POINTER)
-		fprintf(f, " %p", node->data.ptr_val);
+	switch (node->data.type) {
+	case ZZ_NULL:
+		break;
+	case ZZ_INT:
+		fprintf(f, " %d", node->data.data.int_val);
+		break;
+	case ZZ_UINT:
+		fprintf(f, " %u", node->data.data.uint_val);
+		break;
+	case ZZ_DOUBLE:
+		fprintf(f, " %f", node->data.data.double_val);
+		break;
+	case ZZ_STRING:
+		fprintf(f, " \"%s\"", node->data.data.string_val);
+		break;
+	case ZZ_POINTER:
+		fprintf(f, " %p", node->data.data.pointer_val);
+		break;
+	}
 
-	zz_foreach_child(iter, node) {
+	zz_list_foreach_entry(iter, &node->children, siblings) {
 		fprintf(f, " ");
 		zz_print(iter, f);
 	}

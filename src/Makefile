@@ -1,9 +1,11 @@
 
 include ../config.mk
 
+objs += data.o
 objs += dict.o
 objs += tree.o
 objs += print.o
+
 
 deps = $(objs:.o=.d)
 
