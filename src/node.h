@@ -20,6 +20,18 @@ struct zz_node {
 	struct zz_data data;
 };
 
+#define zz_foreach_child(iter, node) \
+zz_list_foreach_entry(iter, &node->children, siblings)
+
+#define zz_reverse_foreach_child(iter, node) \
+zz_list_reverse_foreach_entry(iter, &node->children, siblings)
+
+#define zz_foreach_child_safe(iter, next, node) \
+zz_list_foreach_entry_safe(iter, next, &node->children, siblings)
+
+#define zz_reverse_foreach_child_safe(iter, prev, node) \
+zz_list_reverse_foreach_entry_safe(iter, prev, &node->children, siblings)
+
 static inline struct zz_node *zz_ref(struct zz_node *n)
 {
 	++n->ref_count;
@@ -30,35 +42,35 @@ static inline struct zz_node *zz_next_sibling(struct zz_node *p, struct zz_node 
 {
 	if (c->siblings.next == &p->children)
 		return NULL;
-	return zz_ref(zz_list_entry(c->siblings.next, struct zz_node, siblings));
+	return zz_list_entry(c->siblings.next, struct zz_node, siblings);
 }
 
 static inline struct zz_node *zz_prev_sibling(struct zz_node *p, struct zz_node *c)
 {
 	if (c->siblings.prev == &p->children)
 		return NULL;
-	return zz_ref(zz_list_entry(c->siblings.prev, struct zz_node, siblings));
+	return zz_list_entry(c->siblings.prev, struct zz_node, siblings);
 }
 
 static inline struct zz_node *zz_first_child(struct zz_node *n)
 {
 	if (n->children.next == &n->children)
 		return NULL;
-	return zz_ref(zz_list_entry(n->children.next, struct zz_node, siblings));
+	return zz_list_entry(n->children.next, struct zz_node, siblings);
 }
 
 static inline struct zz_node *zz_last_child(struct zz_node *n)
 {
 	if (n->children.prev == &n->children)
 		return NULL;
-	return zz_ref(zz_list_entry(n->children.prev, struct zz_node, siblings));
+	return zz_list_entry(n->children.prev, struct zz_node, siblings);
 }
 
 static inline struct zz_node *zz_unref(struct zz_node *n)
 {
 	if (--n->ref_count <= 0) {
 		struct zz_node *i, *x;
-		zz_list_foreach_entry_safe(i, x, &n->children, siblings)
+		zz_foreach_child_safe(i, x, n)
 			zz_unref(i);
 		zz_list_unlink(&n->allocated);
 		free(n);

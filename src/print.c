@@ -28,7 +28,7 @@ void zz_print(struct zz_node *node, FILE * f)
 		break;
 	}
 
-	zz_list_foreach_entry(iter, &node->children, siblings) {
+	zz_foreach_child(iter, node) {
 		fprintf(f, " ");
 		zz_print(iter, f);
 	}
