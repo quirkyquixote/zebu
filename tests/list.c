@@ -6,114 +6,276 @@ struct node {
 	int data;
 };
 
-static inline void check(struct zz_list *list, const int *data, size_t ndata)
+
+struct zz_list *zz_list(void)
 {
-	struct zz_list *iter;
+	struct zz_list *l = calloc(1, sizeof(*l));
+	zz_list_init(l);
+	return l;
+}
+
+void zz_list_destroy(struct zz_list *l)
+{
+	struct node *i, *n;
+	zz_list_foreach_entry_safe(i, n, l, list)
+		free(i);
+	free(l);
+}
+
+struct node *node(int data)
+{
+	struct node *n = calloc(1, sizeof(*n));
+	zz_list_init(&n->list);
+	n->data = data;
+	return n;
+}
+
+void empty_list(void)
+{
+	struct zz_list *head, *iter;
+	int i;
 	struct node *entry;
-	size_t i = 0;
-	zz_list_foreach(iter, list) {
-		assert(i < ndata);
-		assert(((struct node *)iter)->data == data[i]);
+
+	head = zz_list();
+	assert(head->next == head);
+	assert(head->prev == head);
+	assert(zz_list_empty(head));
+
+	i = 0;
+	zz_list_foreach(iter, head)
 		++i;
-	}
-	assert(i == ndata);
-	zz_list_reverse_foreach(iter, list) {
-		assert(i > 0);
-		--i;
-		assert(((struct node *)iter)->data == data[i]);
-	}
 	assert(i == 0);
-	zz_list_foreach_entry(entry, list, list) {
-		assert(i < ndata);
-		assert(entry->data == data[i]);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head)
 		++i;
-	}
-	assert(i == ndata);
-	zz_list_reverse_foreach_entry(entry, list, list) {
-		assert(i > 0);
-		--i;
-		assert(entry->data == data[i]);
-	}
 	assert(i == 0);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head, list)
+		++i;
+	assert(i == 0);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head, list)
+		++i;
+	assert(i == 0);
+
+	zz_list_destroy(head);
+}
+
+void iterate_list(void)
+{
+	struct zz_list *head, *iter;
+	int i;
+	struct node *entry;
+
+	head = zz_list();
+
+	for (i = 0; i < 256; ++i)
+		zz_list_append(head, &node(i)->list);
+
+	i = 0;
+	zz_list_foreach(iter, head)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head, list)
+		assert(entry->data == i++);
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head, list)
+		assert(entry->data == 255 - i++);
+	assert(i == 256);
+
+	zz_list_destroy(head);
+}
+
+void split_list(void)
+{
+	struct zz_list *head, *head2, *iter;
+	int i;
+	struct node *entry, *next;
+
+	head = zz_list();
+	head2 = zz_list();
+
+	for (i = 0; i < 256; ++i)
+		zz_list_append(head, &node(i)->list);
+
+	zz_list_foreach_entry_safe(entry, next, head, list) {
+		if (entry->data % 2) {
+			zz_list_unlink(&entry->list);
+			zz_list_append(head2, &entry->list);
+		}
+	}
+
+	i = 0;
+	zz_list_foreach(iter, head)
+		++i;
+	assert(i == 128);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head)
+		++i;
+	assert(i == 128);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head, list)
+		assert(entry->data == 2 * i++);
+	assert(i == 128);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head, list)
+		assert(entry->data == 254 - 2 * i++);
+	assert(i == 128);
+
+	i = 0;
+	zz_list_foreach(iter, head2)
+		++i;
+	assert(i == 128);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head2)
+		++i;
+	assert(i == 128);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head2, list)
+		assert(entry->data == 2 * i++ + 1);
+	assert(i == 128);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head2, list)
+		assert(entry->data == 255 - 2 * i++);
+	assert(i == 128);
+
+	zz_list_destroy(head);
+	zz_list_destroy(head2);
+}
+
+void clear_list(void)
+{
+	struct zz_list *head, *iter;
+	int i;
+	struct node *entry, *next;
+
+	head = zz_list();
+
+	for (i = 0; i < 256; ++i)
+		zz_list_append(head, &node(i)->list);
+
+	zz_list_foreach_entry_safe(entry, next, head, list) {
+		zz_list_unlink(&entry->list);
+		free(entry);
+	}
+
+	assert(head->next == head);
+	assert(head->prev == head);
+	assert(zz_list_empty(head));
+
+	i = 0;
+	zz_list_foreach(iter, head)
+		++i;
+	assert(i == 0);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head)
+		++i;
+	assert(i == 0);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head, list)
+		++i;
+	assert(i == 0);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head, list)
+		++i;
+	assert(i == 0);
+
+	zz_list_destroy(head);
+}
+
+void swap_list(void)
+{
+	struct zz_list *head, *head2, *iter, *iter2, *next, *next2;
+	int i;
+	struct node *entry;
+
+	head = zz_list();
+	head2 = zz_list();
+
+	for (i = 0; i < 256; ++i) {
+		zz_list_append(head, &node(i)->list);
+		zz_list_append(head2, &node(-i)->list);
+	}
+
+	iter2 = head2->next;
+	zz_list_foreach_safe(iter, next, head) {
+		next2 = iter2->next;
+		zz_list_swap(iter, iter2);
+		iter2 = next2;
+	}
+	assert(iter2 == head2);
+
+	i = 0;
+	zz_list_foreach(iter, head)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head, list)
+		assert(entry->data == -i++);
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head, list)
+		assert(entry->data == i++ - 255);
+	assert(i == 256);
+
+	i = 0;
+	zz_list_foreach(iter, head2)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach(iter, head2)
+		++i;
+	assert(i == 256);
+
+	i = 0;
+	zz_list_foreach_entry(entry, head2, list)
+		assert(entry->data == i++);
+	assert(i == 256);
+
+	i = 0;
+	zz_list_reverse_foreach_entry(entry, head2, list)
+		assert(entry->data == 255 - i++);
+	assert(i == 256);
+
+	zz_list_destroy(head);
+	zz_list_destroy(head2);
 }
 
 int main(int argc, char *argv[])
 {
-	struct zz_list l0, l1;
-	struct node n0, n1, n2, n3, n4, n5, n6;
-
-	zz_list_init(&l0);
-	zz_list_init(&l1);
-
-	zz_list_init(&n0.list);
-	zz_list_init(&n1.list);
-	zz_list_init(&n2.list);
-	zz_list_init(&n3.list);
-	zz_list_init(&n4.list);
-	zz_list_init(&n5.list);
-	zz_list_init(&n6.list);
-
-	n0.data = 0;
-	n1.data = 1;
-	n2.data = 2;
-	n3.data = 3;
-	n4.data = 4;
-	n5.data = 5;
-	n6.data = 6;
-
-	/* () */
-	check(&l0, NULL, 0);
-
-	/* (0) */
-	zz_list_append(&l0, &n0.list);
-	{
-	static const int golden[] = { 0 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (0, 1) */
-	zz_list_append(&l0, &n1.list);
-	{
-	static const int golden[] = { 0, 1 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (0, 1, 2) */
-	zz_list_append(&l0, &n2.list);
-	{
-	static const int golden[] = { 0, 1, 2 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (0, 1, 3, 4, 2) */
-	zz_list_append(&l1, &n3.list);
-	zz_list_append(&l1, &n4.list);
-	zz_list_splice(&n2.list, &l1);
-	{
-	static const int golden[] = { 0, 1, 3, 4, 2 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (0, 3, 4, 2) */
-	zz_list_unlink(&n1.list);
-	{
-	static const int golden[] = { 0, 3, 4, 2 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (0, 3, 4, 2, 5) */
-	zz_list_append(&l0, &n5.list);
-	{
-	static const int golden[] = { 0, 3, 4, 2, 5 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
-	/* (6, 0, 3, 4, 2, 5) */
-	zz_list_prepend(&l0, &n6.list);
-	{
-	static const int golden[] = { 6, 0, 3, 4, 2, 5 };
-	check(&l0, golden, sizeof(golden) / sizeof(*golden));
-	}
-
+	empty_list();
+	iterate_list();
+	clear_list();
+	split_list();
+	swap_list();
 	exit(EXIT_SUCCESS);
 }
