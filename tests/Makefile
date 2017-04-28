@@ -4,11 +4,12 @@ include ../config.mk
 DIFF = diff -q --ignore-blank-lines --ignore-space-change
 MEMCHECK = valgrind -q --tool=memcheck
 
+objs += list.o
+objs += dict.o
 objs += alloc.o
 objs += build.o
 objs += data.o
 objs += error.o
-objs += list.o
 objs += location.o
 objs += print.o
 objs += string.o
@@ -32,6 +33,7 @@ clean:
 alloc: alloc.o ../src/libzebu.a
 build: build.o ../src/libzebu.a
 data: data.o ../src/libzebu.a
+dict: dict.o ../src/libzebu.a
 error: error.o ../src/libzebu.a
 list: list.o ../src/libzebu.a
 location: location.o ../src/libzebu.a

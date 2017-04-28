@@ -4,6 +4,7 @@
 tests/alloc
 tests/build
 tests/data
+tests/dict
 tests/error
 tests/list
 tests/location
