@@ -126,23 +126,36 @@ static inline void zz_list_prepend_list(struct zz_list *list, struct zz_list *no
 	zz_list_splice(list->next, nodes);
 }
 /*
- * Replace old_node by node
+ * Replace a and b in their respective lists
  *
- * Links the prev and next nodes of old_node to node instead; it doesn't relink
- * old_node to itself, uze zz_list_init() for that; if node already belonged to
- * a list, it will be invalidaded, use zz_list_unlink() on it first.
+ * Links the prev and next nodes of a to b, and b to a, except when one or both
+ * of the nodes are empty, in which case the other node is linked to itself.
  *
- * @old_node the node to be replaced
- * @node a node to replace old_node
+ * @a node to replace b
+ * @b node to replace a
  */
-static inline void zz_list_swap(struct zz_list *old_node, struct zz_list *node)
+static inline void zz_list_swap(struct zz_list *a, struct zz_list *b)
 {
-	struct zz_list *prev = old_node->prev;
-	struct zz_list *next = old_node->next;
-	prev->next = node;
-	next->prev = node;
-	node->next = next;
-	node->prev = prev;
+	struct zz_list *a_prev = a->prev;
+	struct zz_list *a_next = a->next;
+	struct zz_list *b_prev = b->prev;
+	struct zz_list *b_next = b->next;
+	if (a_prev != a) {
+		a_prev->next = b;
+		a_next->prev = b;
+		b->next = a_next;
+		b->prev = a_prev;
+	} else {
+		zz_list_init(b);
+	}
+	if (b_prev != b) {
+		b_prev->next = a;
+		b_next->prev = a;
+		a->next = b_next;
+		a->prev = b_prev;
+	} else {
+		zz_list_init(a);
+	}
 }
 /*
  * Iterate on a zz_list
