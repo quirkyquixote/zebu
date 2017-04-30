@@ -7,10 +7,8 @@
 /*
  * Abstract Syntax Tree
  *
- * Includes not only the tree structure--in fact, it doesn't even know which
- * node is the root--, but knows node types and names, and is the factory for
- * producing new zz_node and strings.
- *
+ * Not actually the tree, but a factory to produce new nodes that can
+ * deallocate all them with a sigle call.
  */
 struct zz_tree {
 	/* Size of each node */

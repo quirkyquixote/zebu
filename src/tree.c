@@ -15,10 +15,10 @@ void zz_tree_init(struct zz_tree *tree, size_t node_size)
 
 void zz_tree_destroy(struct zz_tree * tree)
 {
-	struct zz_list *iter, *next;
-	for (iter = &tree->nodes; iter != &tree->nodes; iter = next) {
-		next = iter->next;
-		free(zz_list_entry(iter, struct zz_node, allocated));
+	struct zz_node *n, *x;
+	zz_list_foreach_entry_safe(n, x, &tree->nodes, allocated) {
+		zz_data_destroy(n->data);
+		free(n);
 	}
 }
 
