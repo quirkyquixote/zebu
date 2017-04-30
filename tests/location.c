@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	set_location(n3, 3);
 	n4 = zz_node(&tree, TOK_FOO, zz_double(0.5));
 	set_location(n4, 5);
-	n5 = zz_node(&tree, TOK_BAR, zz_string(&tree, "314"));
+	n5 = zz_node(&tree, TOK_BAR, zz_string("314"));
 	set_location(n5, 8);
 	n6 = zz_node(&tree, TOK_BAZ, zz_pointer(&tree));
 	set_location(n6, 13);

@@ -59,6 +59,13 @@ static inline struct zz_data zz_double(double data)
 	return (struct zz_data){ ZZ_DOUBLE, { .double_val = data }};
 }
 /*
+ * Create a string
+ *
+ * @str a string
+ * @return a new string allocated by _tree_
+ */
+struct zz_data zz_string(const char *str);
+/*
  * Reset to pointer
  *
  * @data new data for node
@@ -67,6 +74,18 @@ static inline struct zz_data zz_pointer(void *data)
 {
 	return (struct zz_data){ ZZ_POINTER, { .pointer_val = data }};
 }
+/*
+ * Destroy data
+ *
+ * @data data to destroy
+ */
+void zz_data_destroy(struct zz_data x);
+/*
+ * Copy data
+ *
+ * @data data to copy
+ */
+struct zz_data zz_data_copy(struct zz_data x);
 /*
  * Get int
  *

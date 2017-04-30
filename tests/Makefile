@@ -12,16 +12,16 @@ objs += data.o
 objs += error.o
 objs += location.o
 objs += print.o
-objs += string.o
 objs += tree.o
 
-bins = $(objs:.o:)
+bins = $(objs:.o=)
 deps = $(objs:.o=.d)
 logs = $(objs:.o=.log)
 
 .PHONY: all
 all: $(logs)
-	@for i in $(bins); do echo TEST $$i; $(DIFF) $$i.log $$i.gold; done
+	@for i in $(bins); do echo DIFF $$i.log; $(DIFF) $$i.log $$i.gold; done
+	@for i in $(bins); do echo MEMCHECK $$i; $(MEMCHECK) ./$$i > /dev/null 2>&1; done
 
 .PHONY: clean
 clean:
@@ -45,7 +45,7 @@ tree: tree.o ../src/libzebu.a
 	make -C ../src libzebu.a
 
 %.log: % make-always
-	$(QUIET_GEN)$(MEMCHECK) ./$< > $@ 2>&1
+	$(QUIET_GEN)./$< > $@ 2>&1
 
 .PHONY: make-always
 make-always:

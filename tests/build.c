@@ -21,17 +21,17 @@ int main(int argc, char *argv[])
 	zz_tree_init(&tree, sizeof(struct zz_node));
 
 	n0 = zz_node(&tree, FOO_FUNC, zz_null);
-	n1 = zz_node(&tree, FOO_TYPE, zz_string(&tree, "int"));
+	n1 = zz_node(&tree, FOO_TYPE, zz_string("int"));
 	zz_append_child(n0, n1);
-	n1 = zz_node(&tree, FOO_IDENT, zz_string(&tree, "main"));
+	n1 = zz_node(&tree, FOO_IDENT, zz_string("main"));
 	zz_append_child(n0, n1);
 	n1 = zz_node(&tree, FOO_ARGLIST, zz_null);
 	zz_append_child(n0, n1);
 	n2 = zz_node(&tree, FOO_ARG, zz_null);
 	zz_append_child(n1, n2);
-	n3 = zz_node(&tree, FOO_TYPE, zz_string(&tree, "int"));
+	n3 = zz_node(&tree, FOO_TYPE, zz_string("int"));
 	zz_append_child(n2, n3);
-	n3 = zz_node(&tree, FOO_IDENT, zz_string(&tree, "argc"));
+	n3 = zz_node(&tree, FOO_IDENT, zz_string("argc"));
 	zz_append_child(n2, n3);
 	n2 = zz_node(&tree, FOO_ARG, zz_null);
 	zz_append_child(n1, n2);
@@ -39,21 +39,21 @@ int main(int argc, char *argv[])
 	zz_append_child(n2, n3);
 	n4 = zz_node(&tree, FOO_POINTER, zz_null);
 	zz_append_child(n3, n4);
-	n5 = zz_node(&tree, FOO_TYPE, zz_string(&tree, "int"));
+	n5 = zz_node(&tree, FOO_TYPE, zz_string("int"));
 	zz_append_child(n4, n5);
-	n3 = zz_node(&tree, FOO_IDENT, zz_string(&tree, "argc"));
+	n3 = zz_node(&tree, FOO_IDENT, zz_string("argc"));
 	zz_append_child(n2, n3);
 	n1 = zz_node(&tree, FOO_BODY, zz_null);
 	zz_append_child(n0, n1);
 	n2 = zz_node(&tree, FOO_CALL, zz_null);
 	zz_append_child(n1, n2);
-	n3 = zz_node(&tree, FOO_IDENT, zz_string(&tree, "printf"));
+	n3 = zz_node(&tree, FOO_IDENT, zz_string("printf"));
 	zz_append_child(n2, n3);
 	n3 = zz_node(&tree, FOO_ARGLIST, zz_null);
 	zz_append_child(n2, n3);
 	n4 = zz_node(&tree, FOO_ARG, zz_null);
 	zz_append_child(n3, n4);
-	n5 = zz_node(&tree, FOO_STRING, zz_string(&tree, "Hello, World!"));
+	n5 = zz_node(&tree, FOO_STRING, zz_string("Hello, World!"));
 	zz_append_child(n4, n5);
 
 	setvbuf(stdout, NULL, _IONBF, 0);

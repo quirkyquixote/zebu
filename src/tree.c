@@ -6,14 +6,11 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "dict.h"
-
 void zz_tree_init(struct zz_tree *tree, size_t node_size)
 {
 	assert(node_size >= sizeof(struct zz_node));
 	tree->node_size = node_size;
 	zz_list_init(&tree->nodes);
-	tree->strings = NULL;
 }
 
 void zz_tree_destroy(struct zz_tree * tree)
@@ -23,7 +20,6 @@ void zz_tree_destroy(struct zz_tree * tree)
 		next = iter->next;
 		free(zz_list_entry(iter, struct zz_node, allocated));
 	}
-	zz_dict_destroy(tree->strings);
 }
 
 struct zz_node *zz_node(struct zz_tree * tree, const char *token, struct zz_data data)
@@ -39,16 +35,9 @@ struct zz_node *zz_node(struct zz_tree * tree, const char *token, struct zz_data
 	return n;
 }
 
-struct zz_data zz_string(struct zz_tree *tree, const char *str)
-{
-	struct zz_data data = { ZZ_STRING };
-	tree->strings = zz_dict_insert(tree->strings, str, &data.data.string_val);
-	return data;
-}
-
 struct zz_node *zz_copy(struct zz_tree *tree, struct zz_node *node)
 {
-	return zz_node(tree, node->token, node->data);
+	return zz_node(tree, node->token, zz_data_copy(node->data));
 }
 
 struct zz_node * zz_copy_recursive(struct zz_tree * tree, struct zz_node * node)

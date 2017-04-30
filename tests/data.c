@@ -1,14 +1,12 @@
 
 #include <string.h>
+#include <stdlib.h>
 
-#include "../src/zebu.h"
+#include "../src/data.h"
 
 int main(int argc, char *argv[])
 {
-	struct zz_tree t;
 	struct zz_data d;
-
-	zz_tree_init(&t, sizeof(struct zz_node));
 
 	d = zz_null;
 	assert(d.type == ZZ_NULL);
@@ -22,12 +20,11 @@ int main(int argc, char *argv[])
 	d = zz_double(42);
 	assert(zz_to_double(d) == 42);
 
-	d = zz_string(&t, "forty-two");
+	d = zz_string("forty-two");
 	assert(strcmp(zz_to_string(d), "forty-two") == 0);
 
-	d = zz_pointer(&t);
-	assert(zz_to_pointer(d) == &t);
+	d = zz_pointer(&d);
+	assert(zz_to_pointer(d) == &d);
 
-	zz_tree_destroy(&t);
 	exit(EXIT_SUCCESS);
 }

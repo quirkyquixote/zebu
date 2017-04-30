@@ -67,8 +67,8 @@ int allocate_huge_string(void)
 	zz_tree_init(&tree, sizeof(struct zz_node));
 	str = REALLY_LONG_STRING;
 	len = strlen(REALLY_LONG_STRING);
-	n1 = zz_node(&tree, TOK_FOO, zz_string(&tree, str));
-	n2 = zz_node(&tree, TOK_BAR, zz_string(&tree, str));
+	n1 = zz_node(&tree, TOK_FOO, zz_string(str));
+	n2 = zz_node(&tree, TOK_BAR, zz_string(str));
 	assert(n1 != n2);
 	assert(zz_get_string(n1) != str);
 	assert(zz_get_string(n2) != str);
@@ -93,7 +93,7 @@ int allocate_many_strings(void)
 	nodes = calloc(len, sizeof(*nodes));
 	for (i = 0; i < len; ++i) {
 		snprintf(buf, sizeof(buf), "%zu", i);
-		nodes[i] = zz_node(&tree, TOK_BAZ, zz_string(&tree, buf));
+		nodes[i] = zz_node(&tree, TOK_BAZ, zz_string(buf));
 	}
 	for (i = 0; i < len; ++i) {
 		snprintf(buf, sizeof(buf), "%zu", i);

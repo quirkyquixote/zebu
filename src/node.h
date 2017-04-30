@@ -73,6 +73,7 @@ static inline struct zz_node *zz_unref(struct zz_node *n)
 		zz_foreach_child_safe(i, x, n)
 			zz_unref(i);
 		zz_list_unlink(&n->allocated);
+		zz_data_destroy(n->data);
 		free(n);
 		return NULL;
 	}

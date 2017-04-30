@@ -17,8 +17,6 @@ struct zz_tree {
 	size_t node_size;
 	/* All nodes managed by this tree */
 	struct zz_list nodes;
-	/* Index of all strings managed by the tree */
-	void *strings;
 };
 
 /*
@@ -45,13 +43,12 @@ void zz_tree_destroy(struct zz_tree *tree);
  */
 struct zz_node *zz_node(struct zz_tree *tree, const char *tok, struct zz_data data);
 /*
- * Create a string
+ * Dereference---and potentially destroy---a node 
  *
- * @tree a zz_tree
- * @str a string
- * @return a new string allocated by _tree_
+ * @node a zz_node
+ * @return node or __NULL__
  */
-struct zz_data zz_string(struct zz_tree *tree, const char *str);
+struct zz_node *zz_unref(struct zz_node *n);
 /*
  * Copy a node 
  *

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	assert((node = zz_node(&tree, TOK_FOO, zz_double(0.5))) != NULL);
 	assert(zz_get_double(node) == 0.5);
 
-	assert((node = zz_node(&tree, TOK_BAR, zz_string(&tree, "314"))) != NULL);
+	assert((node = zz_node(&tree, TOK_BAR, zz_string("314"))) != NULL);
 	assert(strcmp(zz_get_string(node), "314") == 0);
 
 	assert((node = zz_node(&tree, TOK_BAZ, zz_pointer(&tree))) != NULL);
