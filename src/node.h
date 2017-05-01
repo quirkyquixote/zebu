@@ -6,8 +6,6 @@
 #include "data.h"
 
 struct zz_node {
-	/* Reference count */
-	int ref_count;
 	/* Siblings */
 	struct zz_list siblings;
 	/* Children */
@@ -31,12 +29,6 @@ zz_list_foreach_entry_safe(iter, next, &node->children, siblings)
 
 #define zz_reverse_foreach_child_safe(iter, prev, node) \
 zz_list_reverse_foreach_entry_safe(iter, prev, &node->children, siblings)
-
-static inline struct zz_node *zz_ref(struct zz_node *n)
-{
-	++n->ref_count;
-	return n;
-}
 
 static inline struct zz_node *zz_next_sibling(struct zz_node *p, struct zz_node *c)
 {
@@ -66,36 +58,29 @@ static inline struct zz_node *zz_last_child(struct zz_node *n)
 	return zz_list_entry(n->children.prev, struct zz_node, siblings);
 }
 
-static inline struct zz_node *zz_unref(struct zz_node *n)
+static inline void zz_destroy(struct zz_node *n)
 {
-	if (--n->ref_count <= 0) {
-		struct zz_node *i, *x;
-		zz_foreach_child_safe(i, x, n)
-			zz_unref(i);
-		zz_list_unlink(&n->allocated);
-		zz_data_destroy(n->data);
-		free(n);
-		return NULL;
-	}
-	return n;
+	struct zz_node *i, *x;
+	zz_foreach_child_safe(i, x, n)
+		zz_destroy(i);
+	zz_list_unlink(&n->allocated);
+	zz_data_destroy(n->data);
+	free(n);
 }
 
 static inline void zz_append_child(struct zz_node *p, struct zz_node *c)
 {
-	zz_ref(c);
 	zz_list_append(&p->children, &c->siblings);
 }
 
 static inline void zz_prepend_child(struct zz_node *p, struct zz_node *c)
 {
-	zz_ref(c);
 	zz_list_prepend(&p->children, &c->siblings);
 }
 
 static inline void zz_unlink_child(struct zz_node *n)
 {
 	zz_list_unlink(&n->siblings);
-	zz_unref(n);
 }
 
 static inline int zz_get_int(struct zz_node *n)

@@ -25,7 +25,6 @@ void zz_tree_destroy(struct zz_tree * tree)
 struct zz_node *zz_node(struct zz_tree * tree, const char *token, struct zz_data data)
 {
 	struct zz_node *n = calloc(1, tree->node_size);
-	n->ref_count = 1;
 	zz_list_init(&n->children);
 	zz_list_init(&n->siblings);
 	zz_list_init(&n->allocated);
