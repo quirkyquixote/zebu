@@ -108,4 +108,40 @@ static inline void *zz_get_pointer(struct zz_node *n)
 	return zz_to_pointer(n->data);
 }
 
+static inline void zz_set_null(struct zz_node *n)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_null;
+}
+
+static inline void zz_set_int(struct zz_node *n, int d)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_int(d);
+}
+
+static inline void zz_set_uint(struct zz_node *n, unsigned int d)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_uint(d);
+}
+
+static inline void zz_set_double(struct zz_node *n, double d)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_double(d);
+}
+
+static inline void zz_set_string(struct zz_node *n, const char *d)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_string(d);
+}
+
+static inline void zz_set_pointer(struct zz_node *n, void *d)
+{
+	zz_data_destroy(n->data);
+	n->data = zz_pointer(d);
+}
+
 #endif          // ZEBU_NODE_H_
