@@ -12,3 +12,4 @@ tests/print
 tests/string
 tests/tree
 tests/*.log
+apidoc
