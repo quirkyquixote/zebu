@@ -44,7 +44,7 @@ extern const struct zz_data zz_null;
  * Create int data
  *
  * @memberof zz_data
- * @param data new data
+ * @param [in] data new data
  * @return new zz_data
  */
 static inline struct zz_data zz_int(int data)
@@ -55,7 +55,7 @@ static inline struct zz_data zz_int(int data)
  * Create unsigned int data
  *
  * @memberof zz_data
- * @param data new data
+ * @param [in] data new data
  * @return new zz_data
  */
 static inline struct zz_data zz_uint(unsigned int data)
@@ -66,7 +66,7 @@ static inline struct zz_data zz_uint(unsigned int data)
  * Create double data
  *
  * @memberof zz_data
- * @param data new data
+ * @param [in] data new data
  * @return new zz_data
  */
 static inline struct zz_data zz_double(double data)
@@ -77,7 +77,7 @@ static inline struct zz_data zz_double(double data)
  * Create string data
  *
  * @memberof zz_data
- * @param data new data
+ * @param [in] data new data
  * @return new zz_data
  */
 struct zz_data zz_string(const char *data);
@@ -85,7 +85,7 @@ struct zz_data zz_string(const char *data);
  * Create pointer data
  *
  * @memberof zz_data
- * @param data new data
+ * @param [in] data new data
  * @return new zz_data
  */
 static inline struct zz_data zz_pointer(void *data)
@@ -96,14 +96,14 @@ static inline struct zz_data zz_pointer(void *data)
  * Destroy data
  *
  * @memberof zz_data
- * @param x data to destroy
+ * @param [in] x data to destroy
  */
 void zz_data_destroy(struct zz_data x);
 /**
  * Copy data
  *
  * @memberof zz_data
- * @param x data to copy
+ * @param [in] x data to copy
  * @return a copy of x
  */
 struct zz_data zz_data_copy(struct zz_data x);
@@ -111,7 +111,7 @@ struct zz_data zz_data_copy(struct zz_data x);
  * Get int
  *
  * @memberof zz_data
- * @param x a zz_data
+ * @param [in] x a zz_data
  * @return int held by x
  */
 static inline int zz_to_int(struct zz_data x)
@@ -123,7 +123,7 @@ static inline int zz_to_int(struct zz_data x)
  * Get unsigned int
  *
  * @memberof zz_data
- * @param x a zz_data
+ * @param [in] x a zz_data
  * @return data held by x
  */
 static inline unsigned int zz_to_uint(struct zz_data x)
@@ -135,7 +135,7 @@ static inline unsigned int zz_to_uint(struct zz_data x)
  * Get double
  *
  * @memberof zz_data
- * @param x a zz_data
+ * @param [in] x a zz_data
  * @return data held by x
  */
 static inline double zz_to_double(struct zz_data x)
@@ -147,7 +147,7 @@ static inline double zz_to_double(struct zz_data x)
  * Get string
  *
  * @memberof zz_data
- * @param x a zz_data
+ * @param [in] x a zz_data
  * @return data held by x
  */
 static inline const char *zz_to_string(struct zz_data x)
@@ -159,7 +159,7 @@ static inline const char *zz_to_string(struct zz_data x)
  * Get pointer
  *
  * @memberof zz_data
- * @param x a zz_data
+ * @param [in] x a zz_data
  * @return data held by x
  */
 static inline void *zz_to_pointer(struct zz_data x)

@@ -28,15 +28,15 @@ struct zz_tree {
  * Initialize tree 
  *
  * @memberof zz_tree
- * @param tree a zz_tree
- * @param node_size size of node; it must be at least sizeof(struct zz_node)
+ * @param [in] tree a zz_tree
+ * @param [in] node_size size of node; it must be at least sizeof(struct zz_node)
  */
 void zz_tree_init(struct zz_tree *tree, size_t node_size);
 /**
  * Destroy tree 
  *
  * @memberof zz_tree
- * @param tree a zz_tree
+ * @param [in] tree a zz_tree
  */
 void zz_tree_destroy(struct zz_tree *tree);
 
@@ -44,9 +44,9 @@ void zz_tree_destroy(struct zz_tree *tree);
  * Create a node 
  *
  * @memberof zz_tree
- * @param tree a zz_tree
- * @param tok a token
- * @param data payload
+ * @param [in] tree a zz_tree
+ * @param [in] tok a token
+ * @param [in] data payload
  * @return a new zz_node allocated by _tree_
  */
 struct zz_node *zz_node(struct zz_tree *tree, const char *tok, struct zz_data data);
@@ -54,15 +54,15 @@ struct zz_node *zz_node(struct zz_tree *tree, const char *tok, struct zz_data da
  * Destroy a node 
  *
  * @memberof zz_tree
- * @param n a zz_node
+ * @param [in] n a zz_node
  */
 void zz_unref(struct zz_node *n);
 /**
  * Copy a node 
  *
  * @memberof zz_tree
- * @param tree a zz_tree
- * @param node zz_node to copy
+ * @param [in] tree a zz_tree
+ * @param [in] node zz_node to copy
  * @return a new zz_node allocated by _tree_
  */
 struct zz_node *zz_copy(struct zz_tree *tree, struct zz_node *node);
@@ -70,8 +70,8 @@ struct zz_node *zz_copy(struct zz_tree *tree, struct zz_node *node);
  * Copy a node and all its children recursively 
  *
  * @memberof zz_tree
- * @param tree a zz_tree
- * @param node zz_node to copy
+ * @param [in] tree a zz_tree
+ * @param [in] node zz_node to copy
  * @return a new zz_node allocated by _tree_
  */
 struct zz_node *zz_copy_recursive(struct zz_tree *tree, struct zz_node *node);

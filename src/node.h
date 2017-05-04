@@ -34,8 +34,8 @@ struct zz_node {
  * Iterate on children list
  *
  * @memberof zz_node
- * @iter pointer to struct zz_node to be used as iterator
- * @node node over which children we want to iterate
+ * @param [out] iter pointer to struct zz_node to be used as iterator
+ * @param [in] node node over which children we want to iterate
  */
 #define zz_foreach_child(iter, node) \
 zz_list_foreach_entry(iter, &node->children, siblings)
@@ -43,8 +43,8 @@ zz_list_foreach_entry(iter, &node->children, siblings)
  * Iterate on children list, backwards
  *
  * @memberof zz_node
- * @iter pointer to struct zz_node to be used as iterator
- * @node node over which children we want to iterate
+ * @param [out] iter pointer to struct zz_node to be used as iterator
+ * @param [in] node node over which children we want to iterate
  */
 #define zz_reverse_foreach_child(iter, node) \
 zz_list_reverse_foreach_entry(iter, &node->children, siblings)
@@ -52,28 +52,28 @@ zz_list_reverse_foreach_entry(iter, &node->children, siblings)
  * Iterate on children list; allows removal
  *
  * @memberof zz_node
- * @iter pointer to struct zz_node to be used as iterator
- * @next pointer to struct zz_node to be used as temporary storage
- * @node node over which children we want to iterate
+ * @param [out] iter pointer to struct zz_node to be used as iterator
+ * @param [in] temp pointer to struct zz_node to be used as temporary storage
+ * @param [in] node node over which children we want to iterate
  */
-#define zz_foreach_child_safe(iter, next, node) \
-zz_list_foreach_entry_safe(iter, next, &node->children, siblings)
+#define zz_foreach_child_safe(iter, temp, node) \
+zz_list_foreach_entry_safe(iter, temp, &node->children, siblings)
 /**
  * Iterate on children list, backwards; allows removal
  *
  * @memberof zz_node
- * @iter pointer to struct zz_node to be used as iterator
- * @prev pointer to struct zz_node to be used as temporary storage
- * @node node over which children we want to iterate
+ * @param [out] iter pointer to struct zz_node to be used as iterator
+ * @param [in] temp pointer to struct zz_node to be used as temporary storage
+ * @param [in] node node over which children we want to iterate
  */
-#define zz_reverse_foreach_child_safe(iter, prev, node) \
-zz_list_reverse_foreach_entry_safe(iter, prev, &node->children, siblings)
+#define zz_reverse_foreach_child_safe(iter, temp, node) \
+zz_list_reverse_foreach_entry_safe(iter, temp, &node->children, siblings)
 /**
  * Get next sibling of node, or __NULL__
  *
  * @memberof zz_node
- * @param p parent of _c_
- * @param c previous node
+ * @param [in] p parent of _c_
+ * @param [in] c previous node
  * @return next child of _p_, or __NULL__
  */
 static inline struct zz_node *zz_next_sibling(struct zz_node *p, struct zz_node *c)
@@ -86,8 +86,8 @@ static inline struct zz_node *zz_next_sibling(struct zz_node *p, struct zz_node 
  * Get previous sibling of node, or __NULL__
  *
  * @memberof zz_node
- * @param p parent of _c_
- * @param c next node
+ * @param [in] p parent of _c_
+ * @param [in] c next node
  * @return next child of _p_, or __NULL__
  */
 static inline struct zz_node *zz_prev_sibling(struct zz_node *p, struct zz_node *c)
@@ -100,7 +100,7 @@ static inline struct zz_node *zz_prev_sibling(struct zz_node *p, struct zz_node 
  * Get first child node, or __NULL__
  *
  * @memberof zz_node
- * @param n parent node
+ * @param [in] n parent node
  * @return first child of _n_, or __NULL__
  */
 static inline struct zz_node *zz_first_child(struct zz_node *n)
@@ -113,7 +113,7 @@ static inline struct zz_node *zz_first_child(struct zz_node *n)
  * Get last child node, or __NULL__
  *
  * @memberof zz_node
- * @param n parent node
+ * @param [in] n parent node
  * @return last child of _n_, or __NULL__
  */
 static inline struct zz_node *zz_last_child(struct zz_node *n)
@@ -126,7 +126,7 @@ static inline struct zz_node *zz_last_child(struct zz_node *n)
  * Destroy node and its children recursively
  *
  * @memberof zz_node
- * @param n node to be destroyed
+ * @param [in] n node to be destroyed
  */
 static inline void zz_destroy(struct zz_node *n)
 {
@@ -141,8 +141,8 @@ static inline void zz_destroy(struct zz_node *n)
  * Append child to node
  *
  * @memberof zz_node
- * @param p parent node
- * @param c child to be appended
+ * @param [in] p parent node
+ * @param [in] c child to be appended
  */
 static inline void zz_append_child(struct zz_node *p, struct zz_node *c)
 {
@@ -152,8 +152,8 @@ static inline void zz_append_child(struct zz_node *p, struct zz_node *c)
  * Prepend child to node
  *
  * @memberof zz_node
- * @param p parent node
- * @param c child to be prepended
+ * @param [in] p parent node
+ * @param [in] c child to be prepended
  */
 static inline void zz_prepend_child(struct zz_node *p, struct zz_node *c)
 {
@@ -163,7 +163,7 @@ static inline void zz_prepend_child(struct zz_node *p, struct zz_node *c)
  * Remove node from its parent
  *
  * @memberof zz_node
- * @param n node to be removed
+ * @param [in] n node to be removed
  */
 static inline void zz_unlink_child(struct zz_node *n)
 {
@@ -173,7 +173,7 @@ static inline void zz_unlink_child(struct zz_node *n)
  * Cast node payload to int
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  * @returns _n_'s payload, cast to int
  */
 static inline int zz_get_int(struct zz_node *n)
@@ -184,7 +184,7 @@ static inline int zz_get_int(struct zz_node *n)
  * Cast node payload to unsigned int
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  * @returns _n_'s payload, cast to unsigned int
  */
 static inline unsigned int zz_get_uint(struct zz_node *n)
@@ -195,7 +195,7 @@ static inline unsigned int zz_get_uint(struct zz_node *n)
  * Cast node payload to double
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  * @returns _n_'s payload, cast to double
  */
 static inline double zz_get_double(struct zz_node *n)
@@ -206,7 +206,7 @@ static inline double zz_get_double(struct zz_node *n)
  * Cast node payload to string
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  * @returns _n_'s payload, cast to string
  */
 static inline const char *zz_get_string(struct zz_node *n)
@@ -217,7 +217,7 @@ static inline const char *zz_get_string(struct zz_node *n)
  * Cast node payload to pointer
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  * @returns _n_'s payload, cast to pointer
  */
 static inline void *zz_get_pointer(struct zz_node *n)
@@ -228,7 +228,7 @@ static inline void *zz_get_pointer(struct zz_node *n)
  * Reset node payload to null, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
+ * @param [in] n a zz_node
  */
 static inline void zz_set_null(struct zz_node *n)
 {
@@ -239,8 +239,8 @@ static inline void zz_set_null(struct zz_node *n)
  * Reset node payload to integer, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
- * @param d new payload for _n_
+ * @param [in] n a zz_node
+ * @param [in] d new payload for _n_
  */
 static inline void zz_set_int(struct zz_node *n, int d)
 {
@@ -251,8 +251,8 @@ static inline void zz_set_int(struct zz_node *n, int d)
  * Reset node payload to unsigned integer, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
- * @param d new payload for _n_
+ * @param [in] n a zz_node
+ * @param [in] d new payload for _n_
  */
 static inline void zz_set_uint(struct zz_node *n, unsigned int d)
 {
@@ -264,8 +264,8 @@ static inline void zz_set_uint(struct zz_node *n, unsigned int d)
  * Reset node payload to double, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
- * @param d new payload for _n_
+ * @param [in] n a zz_node
+ * @param [in] d new payload for _n_
  */
 static inline void zz_set_double(struct zz_node *n, double d)
 {
@@ -276,8 +276,8 @@ static inline void zz_set_double(struct zz_node *n, double d)
  * Reset node payload to string, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
- * @param d new payload for _n_
+ * @param [in] n a zz_node
+ * @param [in] d new payload for _n_
  */
 static inline void zz_set_string(struct zz_node *n, const char *d)
 {
@@ -288,8 +288,8 @@ static inline void zz_set_string(struct zz_node *n, const char *d)
  * Reset node payload to pointer, destroying the old one
  *
  * @memberof zz_node
- * @param n a zz_node
- * @param d new payload for _n_
+ * @param [in] n a zz_node
+ * @param [in] d new payload for _n_
  */
 static inline void zz_set_pointer(struct zz_node *n, void *d)
 {

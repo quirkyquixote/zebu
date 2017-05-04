@@ -13,8 +13,8 @@
  * Print the full tree whose root is _node_ to _f_ 
  *
  * @ingroup Zebu
- * @param node a zz_node
- * @param f a FILE
+ * @param [in] node a zz_node
+ * @param [in] f a FILE
  */
 void zz_print(struct zz_node *node, FILE * f);
 
@@ -25,12 +25,12 @@ void zz_print(struct zz_node *node, FILE * f);
  * prints the offending line and a caret pointing at the offending column.
  *
  * @ingroup Zebu
- * @param msg error messabe to be printed
- * @param file path to the file with the error
- * @param first_line first offending line
- * @param first_column first offending column
- * @param last_line last offending line
- * @param last_column last offending column
+ * @param [in] msg error messabe to be printed
+ * @param [in] file path to the file with the error
+ * @param [in] first_line first offending line
+ * @param [in] first_column first offending column
+ * @param [in] last_line last offending line
+ * @param [in] last_column last offending column
  */
 void zz_error(const char *msg, const char *file, size_t first_line,
 		size_t first_column, size_t last_line, size_t last_column);

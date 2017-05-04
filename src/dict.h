@@ -35,9 +35,9 @@ struct zz_dict {
  * Look up string
  *
  * @memberof zz_dict
- * @param t pointer to root node
- * @param data string to be searched
- * @param rval buffer for the original string
+ * @param [in] t pointer to root node
+ * @param [in] data string to be searched
+ * @param [out] rval buffer for the original string
  * @return 1 if the string exists in the tree, 0 otherwise
  */
 int zz_dict_lookup(struct zz_dict *t, const char *data, const char **rval);
@@ -51,9 +51,9 @@ int zz_dict_lookup(struct zz_dict *t, const char *data, const char **rval);
  * the original stringt will be returned through _rval_.
  *
  * @memberof zz_dict
- * @param t pointer to the root node
- * @param data string to be inserted
- * @param rval buffer for the new string
+ * @param [in] t pointer to the root node
+ * @param [in] data string to be inserted
+ * @param [out] rval buffer for the new string
  * @return the new root node of the tree
  */
 struct zz_dict *zz_dict_insert(struct zz_dict *t, const char *data, const char **rval);
@@ -64,8 +64,8 @@ struct zz_dict *zz_dict_insert(struct zz_dict *t, const char *data, const char *
  * one; if it reaches zero, the node holding it will be removed.
  *
  * @memberof zz_dict
- * @param t pointer to the root node
- * @param data string to be removed
+ * @param [in] t pointer to the root node
+ * @param [in] data string to be removed
  * @return the new root node of the tree
  */
 struct zz_dict *zz_dict_delete(struct zz_dict *t, const char *data);
@@ -73,7 +73,7 @@ struct zz_dict *zz_dict_delete(struct zz_dict *t, const char *data);
  * Destroy the tree
  *
  * @memberof zz_dict
- * @param t pointer to the root node
+ * @param [in] t pointer to the root node
  */
 void zz_dict_destroy(struct zz_dict *t);
 
