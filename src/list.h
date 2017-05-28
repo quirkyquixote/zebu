@@ -64,15 +64,12 @@ static inline void zz_list_insert(struct zz_list *next, struct zz_list *node)
 	node->prev = prev;
 }
 /**
- * Append ``node`` to ``list``
+ * Append and prepend ``node`` to ``list``
  */
 static inline void zz_list_append(struct zz_list *list, struct zz_list *node)
 {
 	zz_list_insert(list, node);
 }
-/**
- * Prepend ``node`` to ``list``
- */
 static inline void zz_list_prepend(struct zz_list *list, struct zz_list *node)
 {
 	zz_list_insert(list->next, node);
@@ -90,17 +87,13 @@ static inline void zz_list_splice(struct zz_list *next, struct zz_list *other)
 	other->next->prev = prev;
 }
 /**
- * Append nodes of ``other`` to ``list``. Invalidates ``other``; use
- * zz_list_init() to reset it to an empty list.
+ * Append and prepend nodes of ``other`` to ``list``. Invalidates ``other``;
+ * use zz_list_init() to reset it to an empty list.
  */
 static inline void zz_list_append_list(struct zz_list *list, struct zz_list *other)
 {
 	zz_list_splice(list, other);
 }
-/**
- * Prepend nodes of ``other`` to ``list``. Invalidates ``other``; use
- * zz_list_init() to reset it to an empty list.
- */
 static inline void zz_list_prepend_list(struct zz_list *list, struct zz_list *other)
 {
 	zz_list_splice(list->next, other);
@@ -153,50 +146,37 @@ static inline void zz_list_swap(struct zz_list *a, struct zz_list *b)
 #define zz_list_entry(iter, type, member) \
 	((type *)((char *)(iter) - offsetof(type, member)))
 /**
- * Get struct for list head
+ * Get struct for list head and tail
  */
 #define zz_list_first_entry(list, type, member) \
 	zz_list_entry((list)->next, type, member)
-/**
- * Get struct for list tail
- */
 #define zz_list_last_entry(list, type, member) \
 	zz_list_entry((list)->prev, type, member)
 /**
- * Get next entry
+ * Get next and prev entry
  */
 #define zz_list_next_entry(iter, member) \
 	zz_list_entry((iter)->member.next, typeof(*iter), member)
-/**
- * Get next entry
- */
 #define zz_list_prev_entry(iter, member) \
 	zz_list_entry((iter)->member.prev, typeof(*iter), member)
 /**
- * Iterate on a zz_list
+ * Iterate on a zz_list, in different directions; the safe functions tike an
+ * additional argument that is used as temporary storage and allows unlinking
+ * the iterator inside the loop.
  */
 #define zz_list_foreach_entry(iter, list, member) \
 	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
 			&iter->member != (list); \
 			iter = zz_list_next_entry(iter, member))
-/**
- * Iterate on a zz_list, backwards
- */
 #define zz_list_reverse_foreach_entry(iter, list, member) \
 	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
 			&iter->member != (list); \
 			iter = zz_list_prev_entry(iter, member))
-/**
- * Iterate on a zz_list; allows unlinking of nodes
- */
 #define zz_list_foreach_entry_safe(iter, temp, list, member) \
 	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
 			temp = zz_list_next_entry(iter, member), \
 			&iter->member != (list); \
 			iter = temp)
-/**
- * Iterate on a zz_list, backwards; allows unlinking of nodes
- */
 #define zz_list_reverse_foreach_entry_safe(iter, temp, list, member) \
 	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
 			temp = zz_list_prev_entry(iter, member), \
