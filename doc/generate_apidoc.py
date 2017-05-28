@@ -30,11 +30,11 @@ for path in sys.argv[1:]:
     with open(path) as fd:
         text = fd.read()
         p = re.compile('('+c_comment+')('+c_code+')')
-        p0 = re.compile(c_comprefix)
-        p1 = re.compile(c_function)
-        p2 = re.compile(c_struct)
-        p3 = re.compile(c_define)
-        p4 = re.compile(c_variable)
+        p0 = re.compile('(?<![^\n])'+c_comprefix)
+        p1 = re.compile('(?<![^\n])'+c_function)
+        p2 = re.compile('(?<![^\n])'+c_struct)
+        p3 = re.compile('(?<![^\n])'+c_define)
+        p4 = re.compile('(?<![^\n])'+c_variable)
         for match in p.finditer(text):
             print ''
             doc_prefix = ''
