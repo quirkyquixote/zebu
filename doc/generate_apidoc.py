@@ -6,7 +6,7 @@ import re
 c_comment = '/\*\*+(?:(?!\*/)(?!/\*)(?:\n|.))*\*/'
 c_code = '(?:(?!\*/)(?!/\*)(?:\n|.))*'
 
-c_ident = '(?<![_a-zA-Z0-9])(?!return|if|else|while|for|switch|case|break)[_a-zA-Z][_a-zA-Z0-9]*'
+c_ident = '(?<![_a-zA-Z0-9])[_a-zA-Z][_a-zA-Z0-9]*'
 c_typename = c_ident+'(?:\s+'+c_ident+'|\s*\*)*'
 c_funarg = c_typename+'\s*'+c_ident
 c_funargs = '(?:void|'+c_funarg+'(?:,\s*'+c_funarg+')*)'
@@ -16,7 +16,7 @@ c_variable = c_typename+'\s*'+c_ident+'(?=\s*;)'
 
 c_struct = 'struct\s+'+c_ident+'(?=\s*\{)'
 
-c_defargs = '(?:|'+c_ident+'(?:, *'+c_ident+')*)'
+c_defargs = '(?:'+c_ident+'(?:, *'+c_ident+')*)?'
 c_define = '(?<=#define) +'+c_ident+' *\( *'+c_defargs+' *\)'
 
 c_comprefix = '(/\*+ ?| *\*/| *\* ?)'
@@ -33,7 +33,7 @@ for path in sys.argv[1:]:
         p0 = re.compile('(?<![^\n])'+c_comprefix)
         p1 = re.compile('(?<![^\n])'+c_function)
         p2 = re.compile('(?<![^\n])'+c_struct)
-        p3 = re.compile('(?<![^\n])'+c_define)
+        p3 = re.compile(c_define)
         p4 = re.compile('(?<![^\n])'+c_variable)
         for match in p.finditer(text):
             print ''

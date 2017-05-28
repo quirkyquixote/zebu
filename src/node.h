@@ -16,7 +16,7 @@
  * functions as a factory for each tree.
  */
 
-/*
+/**
  * Node in an AST
  */
 struct zz_node {
