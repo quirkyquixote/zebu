@@ -18,43 +18,25 @@ Just C.
 Installation
 ------------
 
-zebu provices a simple Makefile; to build from scratch:
+zebu provices a simple Makefile; to build from scratch::
 
     make all
     make install
 
-Usage
------
 
-The zebu.h file is fully documented, and gives a relatively good idea of the
-API; the bullet points are:
-
-The zz_tree struct manages a full tree, including resource allocation.
-Individual nodes are of type zz_node.
-
-Node "tokens" are const strings; specifically, all nodes of the same type use
-the same string as token, that doubles as the token name when printing messages
-or formatting trees.
-
-All nodes in the AST may hold data of type int, unsigned int, double, char\*
-(automatically allocated by the tree), or void\* (the referenced memory must be
-managed by the user).
-
-Trees can be given a node size larger than sizeof(struct zz_node): the extra
-bytes may be used to store user-defined fields.
-
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
 
    apidoc
+   usage
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
