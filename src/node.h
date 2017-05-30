@@ -101,6 +101,33 @@ static inline void zz_unlink_child(struct zz_node *n)
 	zz_list_unlink(&n->siblings);
 }
 /**
+ * Check type of payload
+ */
+static inline int zz_is_null(struct zz_node *n)
+{
+	return n->data.type == ZZ_NULL;
+}
+static inline int zz_is_int(struct zz_node *n)
+{
+	return n->data.type == ZZ_INT;
+}
+static inline int zz_is_uint(struct zz_node *n)
+{
+	return n->data.type == ZZ_UINT;
+}
+static inline int zz_is_double(struct zz_node *n)
+{
+	return n->data.type == ZZ_DOUBLE;
+}
+static inline int zz_is_string(struct zz_node *n)
+{
+	return n->data.type == ZZ_STRING;
+}
+static inline int zz_is_pointer(struct zz_node *n)
+{
+	return n->data.type == ZZ_POINTER;
+}
+/**
  * Cast node payload to specific type
  */
 static inline int zz_get_int(struct zz_node *n)
