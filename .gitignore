@@ -12,4 +12,5 @@ tests/print
 tests/string
 tests/tree
 tests/*.log
-apidoc
+doc/apidoc.rst
+doc/_build
