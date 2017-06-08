@@ -5,6 +5,10 @@
 
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Dict
  * ----
@@ -50,5 +54,9 @@ struct zz_dict *zz_dict_delete(struct zz_dict *t, const char *data);
  * Destroy the tree
  */
 void zz_dict_destroy(struct zz_dict *t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif            // ZEBU_DICT_H_

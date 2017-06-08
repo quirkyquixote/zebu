@@ -6,6 +6,10 @@
 #include "list.h"
 #include "data.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Node
  * ----
@@ -183,5 +187,9 @@ static inline void zz_set_pointer(struct zz_node *n, void *d)
 	zz_data_destroy(n->data);
 	n->data = zz_pointer(d);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif          // ZEBU_NODE_H_
