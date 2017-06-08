@@ -5,6 +5,10 @@
 
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Data
  * ----
@@ -30,18 +34,23 @@
  */
 
 /**
+ * Possible data types
+ */
+enum zz_data_type {
+	ZZ_NULL,
+	ZZ_INT,
+	ZZ_UINT,
+	ZZ_DOUBLE,
+	ZZ_STRING,
+	ZZ_POINTER
+};
+
+/**
  * A field to indicate type and another to hold the data
  *
  */
 struct zz_data {
-	enum {
-		ZZ_NULL,
-		ZZ_INT,
-		ZZ_UINT,
-		ZZ_DOUBLE,
-		ZZ_STRING,
-		ZZ_POINTER
-	} type;
+	enum zz_data_type type;
 	union {
 		int int_val;
 		unsigned int uint_val;
@@ -112,5 +121,9 @@ static inline void *zz_to_pointer(struct zz_data x)
 	assert(x.type == ZZ_POINTER);
 	return x.data.pointer_val;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif       // ZEBU_DATA_H_

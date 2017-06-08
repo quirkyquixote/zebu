@@ -5,6 +5,10 @@
 
 #include "node.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Tree
  * ----
@@ -46,5 +50,9 @@ struct zz_node *zz_copy(struct zz_tree *tree, struct zz_node *node);
  * Copy a node and all its children recursively 
  */
 struct zz_node *zz_copy_recursive(struct zz_tree *tree, struct zz_node *node);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif         // ZEBU_TREE_H_

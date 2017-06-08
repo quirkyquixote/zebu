@@ -9,6 +9,14 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+#include <type_traits>
+#define zz_typeof(x) std::remove_reference<decltype((x))>::type
+extern "C" {
+#else
+#define zz_typeof(x) typeof(x)
+#endif
+
 /**
  * List
  * ----
@@ -156,29 +164,29 @@ static inline void zz_list_swap(struct zz_list *a, struct zz_list *b)
  * Get next and prev entry
  */
 #define zz_list_next_entry(iter, member) \
-	zz_list_entry((iter)->member.next, typeof(*iter), member)
+	zz_list_entry((iter)->member.next, zz_typeof(*iter), member)
 #define zz_list_prev_entry(iter, member) \
-	zz_list_entry((iter)->member.prev, typeof(*iter), member)
+	zz_list_entry((iter)->member.prev, zz_typeof(*iter), member)
 /**
  * Iterate on a zz_list, in different directions; the safe functions tike an
  * additional argument that is used as temporary storage and allows unlinking
  * the iterator inside the loop.
  */
 #define zz_list_foreach_entry(iter, list, member) \
-	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
+	for (iter = zz_list_first_entry(list, zz_typeof(*iter), member); \
 			&iter->member != (list); \
 			iter = zz_list_next_entry(iter, member))
 #define zz_list_reverse_foreach_entry(iter, list, member) \
-	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
+	for (iter = zz_list_last_entry(list, zz_typeof(*iter), member); \
 			&iter->member != (list); \
 			iter = zz_list_prev_entry(iter, member))
 #define zz_list_foreach_entry_safe(iter, temp, list, member) \
-	for (iter = zz_list_first_entry(list, typeof(*iter), member); \
+	for (iter = zz_list_first_entry(list, zz_typeof(*iter), member); \
 			temp = zz_list_next_entry(iter, member), \
 			&iter->member != (list); \
 			iter = temp)
 #define zz_list_reverse_foreach_entry_safe(iter, temp, list, member) \
-	for (iter = zz_list_last_entry(list, typeof(*iter), member); \
+	for (iter = zz_list_last_entry(list, zz_typeof(*iter), member); \
 			temp = zz_list_prev_entry(iter, member), \
 			&iter->member != (list); \
 			iter = temp)
@@ -195,5 +203,9 @@ static inline struct zz_list *zz_list_index(struct zz_list *list, size_t index)
 	}
 	return NULL;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif       // ZEBU_LIST_H_
