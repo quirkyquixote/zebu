@@ -3,7 +3,7 @@ CC = cc
 INSTALL = install
 RM = rm -f
 
-version = 1.0
+version = 1.0.3
 prefix = /usr/local
 libdir = $(prefix)/lib
 includedir = $(prefix)/include/zebu
