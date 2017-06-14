@@ -12,6 +12,7 @@ deps = $(objs:.o=.d)
 libs = libzebu.so libzebu.a
 install_libs = $(addprefix $(libdir)/,$(libs))
 
+headers += data.h
 headers += dict.h
 headers += list.h
 headers += node.h

@@ -50,4 +50,4 @@ $(DESTDIR)$(libdir)/%.a: %.a
 
 $(DESTDIR)$(includedir)/%.h: %.h
 	@$(INSTALL) -d $(@D)
-	$(QUIET_INSTALL)$(INSTALL) $< $@
+	$(QUIET_INSTALL)$(INSTALL) -m 644 $< $@
