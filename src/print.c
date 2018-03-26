@@ -39,36 +39,52 @@ void zz_print(struct zz_node *node, FILE * f)
 void zz_error(const char *msg, const char *file, size_t first_line,
 		size_t first_column, size_t last_line, size_t last_column)
 {
-	FILE *f;
-	int i;
-	int c;
-	int r;
-
 	if (file == NULL) {
 		fprintf(stderr, "<file>:%zu: %s\n", first_line, msg);
 		return;
 	}
 	fprintf(stderr, "%s:%zu: %s", file, first_line, msg);
-	f = fopen(file, "r");
+	FILE *f = fopen(file, "r");
 	if (f == NULL)
 		return;
 	fseek(f, 0, SEEK_SET);
-	for (i = 1; i < first_line; ++i) {
-		while (fgetc(f) != '\n')
-			continue;
+	for (int i = 1; i < first_line; ++i) {
+                for (;;) {
+                        int c = fgetc(f);
+                        if (c == '\n')
+                                break;
+                        if (c == EOF)
+                                break;
+                }
 	}
+        char *buf = NULL;
+        int size = 0;
+        int alloc = 0;
 	fputc('\n', stderr);
-	r = ftell(f);
-	for (i = 0; (c = fgetc(f)) != '\n'; ++i)
-		fputc(c, stderr);
-	if (last_line > first_line)
-		last_column = i - 1;
-	fputc('\n', stderr);
-	fseek(f, r, SEEK_SET);
-	for (i = 1; i < first_column; ++i)
-		fputc(fgetc(f) == '\t' ? '\t' : ' ', stderr);
-	for (; i <= last_column; ++i)
-		fputc(fgetc(f) == '\t' ? '\t' : '^', stderr);
-	fputc('\n', stderr);
+        for (int i = first_line; i <= last_line; ++i) {
+                size = 0;
+                for (int j = 1;; ++j) {
+                        int c = fgetc(f);
+                        if (c == EOF)
+                                c = '\n';
+                        fputc(c, stderr);
+                        if (size == alloc) {
+                                alloc = alloc ? alloc * 2 : 2;
+                                buf = realloc(buf, alloc);
+                        }
+                        if (c == '\t' || c == '\n' || c == ' ')
+                                buf[size++] = c;
+                        else if ((i == first_line && j < first_column) ||
+                                        (i == last_line && j > last_column))
+                                buf[size++] = ' ';
+                        else
+                                buf[size++] = '^';
+                        if (c == '\n')
+                                break;
+                }
+                buf[size] = 0;
+                fputs(buf, stderr);
+        }
+        free(buf);
 	fclose(f);
 }

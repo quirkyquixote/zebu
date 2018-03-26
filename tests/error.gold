@@ -1,3 +1,11 @@
 error.c:9: prontf is not a function
-	prontf("Hello, world!\n");
-	^^^^^^
+        prontf("Hello, world!\n");
+        ^^^^^^                    
+error.c:11: expected l-value
+        (overly_long_function_name_to_ensure_line_break() +
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^
+         yet_another_overly_long_function_name()) = foo();
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^         
+error.c:27: error past end of file
+
+
